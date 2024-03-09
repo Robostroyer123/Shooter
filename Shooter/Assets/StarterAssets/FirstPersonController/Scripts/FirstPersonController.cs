@@ -35,7 +35,7 @@ namespace StarterAssets
         public float CoyoteTime = 0.2f;
 
 		[Space(10)]
-        public float dashSpeed = 20f;
+		public float dashSpeed = 20f;
 		public float dashDuration = 1;
 
         [Space(10)]
@@ -83,6 +83,8 @@ namespace StarterAssets
 		private StarterAssetsInputs _input;
 		private GameObject _mainCamera;
 
+		private Vector3 dashVelocity;
+
 		private const float _threshold = 0.01f;
 
 		private float _timeSinceLeftGround;
@@ -101,14 +103,14 @@ namespace StarterAssets
 				return false;
 				#endif
 			}
-        }
+		}
+		// set sphere position, with offset
+		private Vector3 SpherePosition { get { return new(transform.position.x, transform.position.y - GroundedOffset, transform.position.z); } }
         private bool GroundedSphere
         {
             get
             {
-                // set sphere position, with offset
-                Vector3 spherePosition = new(transform.position.x, transform.position.y - GroundedOffset, transform.position.z);
-				return Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore);
+				return Physics.CheckSphere(SpherePosition, GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore);
             }
         }
 
@@ -228,7 +230,7 @@ namespace StarterAssets
 			}
 
             // move the player
-            _controller.Move(inputDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
+            _controller.Move(inputDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime + dashVelocity * Time.deltaTime);
 		}
 
 		private void JumpAndGravity()
@@ -239,7 +241,7 @@ namespace StarterAssets
 				_fallTimeoutDelta = FallTimeout;
 
 				// stop our velocity dropping infinitely when grounded
-				if (_verticalVelocity < 0.0f)
+				if (_verticalVelocity < 0.0f && _controller.isGrounded)
 				{
 					_verticalVelocity = -2f;
 				}
@@ -296,9 +298,33 @@ namespace StarterAssets
 		IEnumerator DashSettings()
 		{
 			_isDashing = true;
+			dashVelocity = DashDirection.normalized * dashSpeed;
+			if(!Grounded)
+            {
+				_verticalVelocity -= Gravity * Time.deltaTime;
+				_numberOfMidairJumpsLeft--;
+			}
 			yield return new WaitForSeconds(dashDuration);
+			dashVelocity = Vector3.zero;
 			_isDashing = false;
 		}
+		Vector3 DashDirection
+        {
+            get
+            {
+				Vector2 move = _input.move != Vector2.zero ? _input.move : Vector2.up;
+				if (GroundedSphere)
+				{
+					Vector3 normal = Physics.Raycast(SpherePosition + Vector3.up * GroundedRadius, Vector3.down, out RaycastHit hit, GroundedRadius * 2, GroundLayers, QueryTriggerInteraction.Ignore) ? hit.normal : Vector3.up;
+					return Vector3.ProjectOnPlane(transform.right * _input.move.x + transform.forward * _input.move.y, normal);
+					//return transform.right * move.x + transform.forward * move.y;
+				}
+				else
+                {
+					return transform.right * move.x + _mainCamera.transform.forward * move.y;
+				}
+            }
+        }
 
         private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
 		{
