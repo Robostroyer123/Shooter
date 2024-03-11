@@ -53,7 +53,7 @@ namespace StarterAssets
         public void OnDash(InputAction.CallbackContext value)
         {
             dash = value.ReadValueAsButton();
-            if (value.started && First != null && (First.Grounded || First.HasMidairJumps))
+            if (value.started && First != null && (First.Grounded || First.HasMidairJumps) && (!First.dashMoveInputRequired || move != Vector2.zero))
             {
                 First.Dash();
             }

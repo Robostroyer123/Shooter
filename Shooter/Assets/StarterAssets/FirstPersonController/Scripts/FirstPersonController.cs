@@ -35,6 +35,10 @@ namespace StarterAssets
         public float CoyoteTime = 0.2f;
 
 		[Space(10)]
+		[Tooltip("Whether or not dashing requires moving the input stick.")]
+		public bool dashMoveInputRequired;
+		[Tooltip("Whether or not the dash direction is the direction the camera is facing, regardless of whether or not they are in the air.")]
+		public bool dashInCameraForward;
 		public float dashSpeed = 20f;
 		public float dashDuration = 1;
 
@@ -91,7 +95,7 @@ namespace StarterAssets
 
 		private int _numberOfMidairJumpsLeft;
 
-		private bool _isDashing;
+		private bool _isDashing, _dashCancel;
 		public bool HasMidairJumps { get { return _numberOfMidairJumpsLeft > 0; } }
         private bool IsCurrentDeviceMouse
 		{
@@ -230,7 +234,7 @@ namespace StarterAssets
 			}
 
             // move the player
-            _controller.Move(inputDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime + dashVelocity * Time.deltaTime);
+            if (!_isDashing) _controller.Move(inputDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime + dashVelocity * Time.deltaTime);
 		}
 
 		private void JumpAndGravity()
@@ -293,36 +297,100 @@ namespace StarterAssets
 
 		public void Dash()
 		{
-			StartCoroutine(DashSettings());
+			float startTime = Time.time;
+			if (!Grounded)
+			{
+				_numberOfMidairJumpsLeft--;
+			}
+			StartCoroutine(DashSettings(startTime));
+			StartCoroutine(DashMovement(startTime));
+			StartCoroutine(DashCancel(startTime));
 		}
-		IEnumerator DashSettings()
+		IEnumerator DashSettings(float startTime)
 		{
 			_isDashing = true;
 			dashVelocity = DashDirection.normalized * dashSpeed;
-			if(!Grounded)
-            {
-				_verticalVelocity -= Gravity * Time.deltaTime;
-				_numberOfMidairJumpsLeft--;
+            if (!_dashCancel)
+			{
+				while (Time.time < startTime + dashDuration)
+				{
+					yield return null;
+                }
 			}
-			yield return new WaitForSeconds(dashDuration);
 			dashVelocity = Vector3.zero;
 			_isDashing = false;
+		}
+		IEnumerator DashMovement(float startTime)
+		{
+			_verticalVelocity = 0;
+			_controller.SimpleMove(Vector3.zero);
+			if (!_dashCancel)
+			{
+				while (Time.time < startTime + dashDuration)
+				{
+					if (Grounded && !_dashCancel)
+					{
+						_verticalVelocity = Gravity;
+					}
+					else
+					{
+						_verticalVelocity = 0;
+					}
+					_controller.Move(dashSpeed * Time.deltaTime * DashDirection.normalized + _verticalVelocity * Time.deltaTime * Vector3.up);
+					yield return null;
+				}
+			}
+		}
+		IEnumerator DashCancel(float startTime)
+		{
+			bool dashGrounded = Grounded;
+			while (Time.time < startTime + dashDuration)
+			{
+				if(!dashGrounded && Grounded)
+                {
+					CancelDash();
+					yield break;
+                }
+				yield return null;
+			}
+		}
+		void CancelDash()
+		{
+			_dashCancel = true;
+			_dashCancel = false;
 		}
 		Vector3 DashDirection
         {
             get
-            {
+			{
 				Vector2 move = _input.move != Vector2.zero ? _input.move : Vector2.up;
-				if (GroundedSphere)
+				if (!dashInCameraForward)
 				{
-					Vector3 normal = Physics.Raycast(SpherePosition + Vector3.up * GroundedRadius, Vector3.down, out RaycastHit hit, GroundedRadius * 2, GroundLayers, QueryTriggerInteraction.Ignore) ? hit.normal : Vector3.up;
-					return Vector3.ProjectOnPlane(transform.right * _input.move.x + transform.forward * _input.move.y, normal);
-					//return transform.right * move.x + transform.forward * move.y;
+					if (GroundedSphere)
+					{
+						Vector3 normal = Physics.Raycast(SpherePosition + Vector3.up * GroundedRadius, Vector3.down, out RaycastHit hit, GroundedRadius * 2, GroundLayers, QueryTriggerInteraction.Ignore) ? hit.normal : Vector3.up;
+						return Vector3.ProjectOnPlane(transform.right * move.x + transform.forward * move.y, normal);
+						//return transform.right * move.x + transform.forward * move.y;
+					}
+					else
+					{
+						return transform.right * move.x + _mainCamera.transform.forward * move.y;
+					}
 				}
 				else
                 {
-					return transform.right * move.x + _mainCamera.transform.forward * move.y;
-				}
+					//Mathf.Abs(_mainCamera.transform.localRotation.x) > Mathf.Rad2Deg * Mathf.Asin((GroundedOffset + GroundedRadius) / (dashDuration * dashSpeed))
+					//!Physics.CheckSphere(SpherePosition + _mainCamera.transform.forward * dashDuration * dashSpeed, GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore)
+					if ((!Physics.SphereCast(SpherePosition, GroundedRadius, _mainCamera.transform.forward, out RaycastHit testHit, dashDuration * dashSpeed, GroundLayers)) || !Grounded)
+					{
+						return transform.right * move.x + _mainCamera.transform.forward * move.y;
+					}
+					else
+					{
+						Vector3 normal = Physics.Raycast(SpherePosition + Vector3.up * GroundedRadius, Vector3.down, out RaycastHit hit, GroundedRadius * 2, GroundLayers, QueryTriggerInteraction.Ignore) ? hit.normal : Vector3.up;
+						return Vector3.ProjectOnPlane(transform.right * move.x + transform.forward * move.y, normal);
+					}
+                }
             }
         }
 
