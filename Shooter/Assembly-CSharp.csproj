@@ -66,6 +66,7 @@
     <Compile Include="Assets\StarterAssets\Mobile\Scripts\VirtualInputs\UIVirtualJoystick.cs" />
     <Compile Include="Assets\StarterAssets\FirstPersonController\Scripts\BasicRigidBodyPush.cs" />
     <Compile Include="Assets\UMotionExamples\Miscellaneous\Scripts\ResetPosition.cs" />
+    <Compile Include="Assets\shaders\MultiPassPassRendererFeature.cs" />
     <Compile Include="Assets\StarterAssets\Mobile\Scripts\CanvasInputs\UICanvasControllerInput.cs" />
     <Compile Include="Assets\StarterAssets\Mobile\Scripts\Utilities\MobileDisableAutoSwitchControls.cs" />
     <Compile Include="Assets\StarterAssets\FirstPersonController\Scripts\FirstPersonController.cs" />
@@ -73,11 +74,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\UMotionEditor\Shaders\WiresOnly.shader" />
+    <None Include="Assets\shaders\BotWGrass.shader" />
     <None Include="Assets\UMotionEditor\Shaders\UnlitLine.shader" />
     <None Include="Assets\UMotionEditor\Shaders\UnlitDashedLine.shader" />
+    <None Include="Assets\shaders\Anime.shader" />
     <None Include="Assets\UMotionEditor\Shaders\CameraLit.shader" />
     <None Include="Assets\StarterAssets\license.txt" />
+    <None Include="Assets\shaders\Lighting.hlsl" />
     <None Include="Assets\UMotionEditor\Shaders\VertexColorUnlit.shader" />
+    <None Include="Assets\shaders\granulator fractal.shader" />
+    <None Include="Assets\shaders\CustomLighting.hlsl" />
     <None Include="Assets\UMotionEditor\Shaders\ColorUnlit.shader" />
     <None Include="Assets\UMotionEditor\Plugins\Application\UMotionApplication.dll" />
     <None Include="Assets\UMotionEditor\Shaders\ColorUnlitTransparent.shader" />

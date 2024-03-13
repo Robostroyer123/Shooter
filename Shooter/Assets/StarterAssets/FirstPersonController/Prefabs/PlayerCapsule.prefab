@@ -215,20 +215,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MoveSpeed: 4
-  SprintSpeed: 6
-  RotationSpeed: 1
+  SprintSpeed: 10.67
+  RotationSpeed: 5
   SpeedChangeRate: 10
-  JumpHeight: 1.2
+  JumpHeight: 2
+  MaxNumberOfMidairJumps: 1
   Gravity: -15
   CoyoteTime: 0.2
+  dashMoveInputRequired: 0
+  dashInCameraForward: 0
+  dashSpeed: 20
+  dashDuration: 0.2
   JumpTimeout: 0.1
   FallTimeout: 0.15
   Grounded: 1
-  GroundedOffset: -0.14
+  GroundedOffset: 0.46
   GroundedRadius: 0.5
   GroundLayers:
     serializedVersion: 2
-    m_Bits: 513
+    m_Bits: 1
   CinemachineCameraTarget: {fileID: 4135013735270702863}
   TopClamp: 89
   BottomClamp: -89
@@ -265,6 +270,7 @@ MonoBehaviour:
   look: {x: 0, y: 0}
   jump: 0
   sprint: 0
+  dash: 0
   analogMovement: 0
   cursorLocked: 1
   cursorInputForLook: 1
