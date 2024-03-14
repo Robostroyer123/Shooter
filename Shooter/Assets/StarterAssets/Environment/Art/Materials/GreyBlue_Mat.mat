@@ -106,6 +106,7 @@ Material:
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _Edge: 0
+    - _Emission: 0
     - _EnvironmentReflections: 0
     - _Falloff_Amount: -0.291
     - _GlossMapScale: 1

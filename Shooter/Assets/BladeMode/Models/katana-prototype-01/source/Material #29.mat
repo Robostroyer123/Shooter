@@ -78,6 +78,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: b438a24a0b540334ab80392a407d3625, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _NormalMap:
+        m_Texture: {fileID: 2800000, guid: fec2273cf66ae624d914d7e4cc8a09dd, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
         m_Texture: {fileID: 2800000, guid: 610f09dfb4a58a94482cc4924cea1a9a, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -126,12 +130,14 @@ Material:
     - _Cutoff: 0.5
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
+    - _DetailScale: 0
     - _DistortionBlend: 0.5
     - _DistortionEnabled: 0
     - _DistortionStrength: 1
     - _DistortionStrengthScaled: 0.1
     - _DstBlend: 0
     - _DstBlendAlpha: 0
+    - _Emission: 1
     - _EnvironmentReflections: 1
     - _Falloff_Amount: 0
     - _FlipbookBlending: 0
