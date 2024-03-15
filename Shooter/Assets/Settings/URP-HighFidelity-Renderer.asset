@@ -49,7 +49,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Active: 1
   lightModePasses:
-  - Outline
+  - OutlineOne
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0

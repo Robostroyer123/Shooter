@@ -44,6 +44,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _Emission: 0
+    - _Falloff_Amount: 0
     - _OcclusionStrength: 0
     m_Colors:
     - _BaseColor: {r: 1, g: 0.5985916, b: 0, a: 1}
