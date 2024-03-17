@@ -1,4 +1,5 @@
 ﻿ using UnityEngine;
+using System.Collections;
 #if ENABLE_INPUT_SYSTEM 
 using UnityEngine.InputSystem;
 #endif
@@ -25,6 +26,9 @@ namespace StarterAssets
         [Range(0.0f, 0.3f)]
         public float RotationSmoothTime = 0.12f;
 
+        [Tooltip("Rotation speed of the camera")]
+        public float RotationCameraSpeed = 5.0f;
+
         [Tooltip("Acceleration and deceleration")]
         public float SpeedChangeRate = 10.0f;
 
@@ -35,9 +39,20 @@ namespace StarterAssets
         [Space(10)]
         [Tooltip("The height the player can jump")]
         public float JumpHeight = 1.2f;
-
         [Tooltip("The character uses its own gravity value. The engine default is -9.81f")]
         public float Gravity = -15.0f;
+        [Tooltip("The number of midair jumps the player can do.")]
+        public int MaxNumberOfMidairJumps = 1;
+        [Tooltip("The delay between leaving a platform and the ability to jump is disabled.")]
+        public float CoyoteTime = 0.2f;
+
+        [Space(10)]
+        [Tooltip("Whether or not dashing requires moving the input stick.")]
+        public bool dashMoveInputRequired;
+        [Tooltip("Whether or not the dash direction is the direction the camera is facing, regardless of whether or not they are in the air.")]
+        public bool dashInCameraForward;
+        public float dashSpeed = 20f;
+        public float dashDuration = 1;
 
         [Space(10)]
         [Tooltip("Time required to pass before being able to jump again. Set to 0f to instantly jump again")]
@@ -106,7 +121,16 @@ namespace StarterAssets
         private StarterAssetsInputs _input;
         private GameObject _mainCamera;
 
+        private Vector3 dashVelocity;
+
         private const float _threshold = 0.01f;
+
+        private float _timeSinceLeftGround;
+
+        private int _numberOfMidairJumpsLeft;
+
+        private bool _isDashing, _dashCancel;
+        public bool HasMidairJumps { get { return _numberOfMidairJumpsLeft > 0; } }
 
         private bool _hasAnimator;
 
@@ -121,6 +145,17 @@ namespace StarterAssets
 #endif
             }
         }
+
+        // set sphere position, with offset
+        private Vector3 SpherePosition { get { return new(transform.position.x, transform.position.y - GroundedOffset, transform.position.z); } }
+        private bool GroundedSphere
+        {
+            get
+            {
+                return Physics.CheckSphere(SpherePosition, GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore);
+            }
+        }
+
 
 
         private void Awake()
@@ -177,12 +212,16 @@ namespace StarterAssets
 
         private void GroundedCheck()
         {
-            // set sphere position, with offset
-            Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset,
-                transform.position.z);
-            Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers,
-                QueryTriggerInteraction.Ignore);
-
+            if (!GroundedSphere)
+            {
+                _timeSinceLeftGround += Time.deltaTime;
+            }
+            else
+            {
+                _timeSinceLeftGround = 0;
+                _numberOfMidairJumpsLeft = MaxNumberOfMidairJumps;
+            }
+            Grounded = _timeSinceLeftGround < CoyoteTime;
             // update animator if using character
             if (_hasAnimator)
             {
@@ -198,8 +237,8 @@ namespace StarterAssets
                 //Don't multiply mouse input by Time.deltaTime;
                 float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
 
-                _cinemachineTargetYaw += _input.look.x * deltaTimeMultiplier;
-                _cinemachineTargetPitch += _input.look.y * deltaTimeMultiplier;
+                _cinemachineTargetYaw += _input.look.x * RotationCameraSpeed * deltaTimeMultiplier;
+                _cinemachineTargetPitch += _input.look.y * RotationCameraSpeed * deltaTimeMultiplier;
             }
 
             // clamp our rotations so our values are limited 360 degrees
@@ -268,7 +307,7 @@ namespace StarterAssets
             Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
 
             // move the player
-            _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
+            if(!_isDashing) _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
                              new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
 
             // update animator if using character
@@ -294,25 +333,25 @@ namespace StarterAssets
                 }
 
                 // stop our velocity dropping infinitely when grounded
-                if (_verticalVelocity < 0.0f)
+                if (_verticalVelocity < 0.0f && _controller.isGrounded)
                 {
                     _verticalVelocity = -2f;
                 }
 
                 // Jump
-                if (_input.jump && _jumpTimeoutDelta <= 0.0f)
-                {
-                    // the square root of H * -2 * G = how much velocity needed to reach desired height
-                    _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
-
-                    // update animator if using character
-                    if (_hasAnimator)
-                    {
-                        _animator.SetBool(_animIDJump, true);
-                    }
-                }
-
-                // jump timeout
+                //if (_input.jump && _jumpTimeoutDelta <= 0.0f)
+                //{
+                //    // the square root of H * -2 * G = how much velocity needed to reach desired height
+                //    _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
+                //
+                //    // update animator if using character
+                //    if (_hasAnimator)
+                //    {
+                //        _animator.SetBool(_animIDJump, true);
+                //    }
+                //}
+                //
+                //// jump timeout
                 if (_jumpTimeoutDelta >= 0.0f)
                 {
                     _jumpTimeoutDelta -= Time.deltaTime;
@@ -338,7 +377,7 @@ namespace StarterAssets
                 }
 
                 // if we are not grounded, do not jump
-                _input.jump = false;
+                //_input.jump = false;
             }
 
             // apply gravity over time if under terminal (multiply by delta time twice to linearly speed up over time)
@@ -347,7 +386,120 @@ namespace StarterAssets
                 _verticalVelocity += Gravity * Time.deltaTime;
             }
         }
+        public void Jump()
+        {
+            // the square root of H * -2 * G = how much velocity needed to reach desired height
+            _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
+            if (!Grounded)
+            {
+                _numberOfMidairJumpsLeft--;
+            }
 
+            // update animator if using character
+            if (_hasAnimator)
+            {
+                _animator.SetBool(_animIDJump, true);
+            }
+        }
+
+        public void Dash()
+        {
+            float startTime = Time.time;
+            if (!Grounded)
+            {
+                _numberOfMidairJumpsLeft--;
+            }
+            StartCoroutine(DashSettings(startTime));
+            StartCoroutine(DashMovement(startTime));
+            StartCoroutine(DashCancel(startTime));
+        }
+        IEnumerator DashSettings(float startTime)
+        {
+            _isDashing = true;
+            dashVelocity = DashDirection.normalized * dashSpeed;
+            if (!_dashCancel)
+            {
+                while (Time.time < startTime + dashDuration)
+                {
+                    yield return null;
+                }
+            }
+            dashVelocity = Vector3.zero;
+            _isDashing = false;
+        }
+        IEnumerator DashMovement(float startTime)
+        {
+            _verticalVelocity = 0;
+            _controller.SimpleMove(Vector3.zero);
+            if (!_dashCancel)
+            {
+                while (Time.time < startTime + dashDuration)
+                {
+                    if (Grounded && !_dashCancel)
+                    {
+                        _verticalVelocity = Gravity;
+                    }
+                    else
+                    {
+                        _verticalVelocity = 0;
+                    }
+                    _controller.Move(dashSpeed * Time.deltaTime * DashDirection.normalized + _verticalVelocity * Time.deltaTime * Vector3.up);
+                    yield return null;
+                }
+            }
+        }
+        IEnumerator DashCancel(float startTime)
+        {
+            bool dashGrounded = Grounded;
+            while (Time.time < startTime + dashDuration)
+            {
+                if (!dashGrounded && Grounded)
+                {
+                    CancelDash();
+                    yield break;
+                }
+                yield return null;
+            }
+        }
+        void CancelDash()
+        {
+            _dashCancel = true;
+            _dashCancel = false;
+        }
+        Vector3 DashDirection
+        {
+            get
+            {
+                Vector2 move = _input.move != Vector2.zero ? _input.move : Vector2.up;
+                if (!dashInCameraForward)
+                {
+                    if (GroundedSphere)
+                    {
+                        Vector3 normal = Physics.Raycast(SpherePosition + Vector3.up * GroundedRadius, Vector3.down, out RaycastHit hit, GroundedRadius * 2, GroundLayers, QueryTriggerInteraction.Ignore) ? hit.normal : Vector3.up;
+                        return Vector3.ProjectOnPlane(transform.right * move.x + transform.forward * move.y, normal);
+                        //return transform.right * move.x + transform.forward * move.y;
+                    }
+                    else
+                    {
+                        return transform.right * move.x + _mainCamera.transform.forward * move.y;
+                    }
+                }
+                else
+                {
+                    //Mathf.Abs(_mainCamera.transform.localRotation.x) > Mathf.Rad2Deg * Mathf.Asin((GroundedOffset + GroundedRadius) / (dashDuration * dashSpeed))
+                    //!Physics.CheckSphere(SpherePosition + _mainCamera.transform.forward * dashDuration * dashSpeed, GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore)
+                    if ((!Physics.SphereCast(SpherePosition, GroundedRadius, _mainCamera.transform.forward, out RaycastHit testHit, dashDuration * dashSpeed, GroundLayers)) || !Grounded)
+                    {
+                        return transform.right * move.x + _mainCamera.transform.forward * move.y;
+                    }
+                    else
+                    {
+                        Vector3 normal = Physics.Raycast(SpherePosition + Vector3.up * GroundedRadius, Vector3.down, out RaycastHit hit, GroundedRadius * 2, GroundLayers, QueryTriggerInteraction.Ignore) ? hit.normal : Vector3.up;
+                        return Vector3.ProjectOnPlane(transform.right * move.x + transform.forward * move.y, normal);
+                    }
+                }
+            }
+        }
         private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
         {
             if (lfAngle < -360f) lfAngle += 360f;

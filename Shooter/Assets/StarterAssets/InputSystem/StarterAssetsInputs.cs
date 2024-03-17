@@ -21,6 +21,7 @@ namespace StarterAssets
 		public bool cursorLocked = true;
 		public bool cursorInputForLook = true;
 		FirstPersonController First { get { return GetComponent<FirstPersonController>(); } }
+		ThirdPersonController Third { get { return GetComponent<ThirdPersonController>(); } }
 
 #if ENABLE_INPUT_SYSTEM
 		public void OnMove(InputAction.CallbackContext value)
@@ -39,9 +40,16 @@ namespace StarterAssets
 		public void OnJump(InputAction.CallbackContext value)
 		{
 			jump = value.ReadValueAsButton();
-			if (value.started && First != null && (First.Grounded || First.HasMidairJumps))
+			if (value.started)
 			{
-				First.Jump();
+				if(First != null && (First.Grounded || First.HasMidairJumps))
+				{
+					First.Jump();
+				}
+				else if(Third != null && (Third.Grounded || Third.HasMidairJumps))
+                {
+					Third.Jump();
+                }
 			}
 		}
 

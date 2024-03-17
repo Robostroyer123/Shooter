@@ -1257,6 +1257,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: ThirdPersonSet
       objectReference: {fileID: 0}
+    - target: {fileID: 8119809095034730375, guid: 71e0f7ceb47298641bd3acc1ff035668,
+        type: 3}
+      propertyPath: MoveSpeed
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8119809095034730375, guid: 71e0f7ceb47298641bd3acc1ff035668,
+        type: 3}
+      propertyPath: JumpHeight
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8119809095034730375, guid: 71e0f7ceb47298641bd3acc1ff035668,
+        type: 3}
+      propertyPath: SprintSpeed
+      value: 10.67
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
