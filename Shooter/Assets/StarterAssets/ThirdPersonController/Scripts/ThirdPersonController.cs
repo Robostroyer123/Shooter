@@ -49,8 +49,6 @@ namespace StarterAssets
         [Space(10)]
         [Tooltip("Whether or not dashing requires moving the input stick.")]
         public bool dashMoveInputRequired;
-        [Tooltip("Whether or not the dash direction is the direction the camera is facing, regardless of whether or not they are in the air.")]
-        public bool dashInCameraForward;
         public float dashSpeed = 20f;
         public float dashDuration = 1;
 
@@ -120,6 +118,8 @@ namespace StarterAssets
         private CharacterController _controller;
         private StarterAssetsInputs _input;
         private GameObject _mainCamera;
+
+        Vector3 targetDirection;
 
         private Vector3 dashVelocity;
 
@@ -304,7 +304,7 @@ namespace StarterAssets
             }
 
 
-            Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
+            targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
 
             // move the player
             if(!_isDashing) _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
@@ -328,7 +328,6 @@ namespace StarterAssets
                 // update animator if using character
                 if (_hasAnimator)
                 {
-                    _animator.SetBool(_animIDJump, false);
                     _animator.SetBool(_animIDFreeFall, false);
                 }
 
@@ -361,8 +360,8 @@ namespace StarterAssets
             {
                 // reset the jump timeout timer
                 _jumpTimeoutDelta = JumpTimeout;
-
-                // fall timeout
+                //
+                //// fall timeout
                 if (_fallTimeoutDelta >= 0.0f)
                 {
                     _fallTimeoutDelta -= Time.deltaTime;
@@ -396,9 +395,9 @@ namespace StarterAssets
             }
 
             // update animator if using character
-            if (_hasAnimator)
+            else if (_hasAnimator)
             {
-                _animator.SetBool(_animIDJump, true);
+                _animator.SetTrigger(_animIDJump);
             }
         }
 
@@ -471,33 +470,8 @@ namespace StarterAssets
             get
             {
                 Vector2 move = _input.move != Vector2.zero ? _input.move : Vector2.up;
-                if (!dashInCameraForward)
-                {
-                    if (GroundedSphere)
-                    {
-                        Vector3 normal = Physics.Raycast(SpherePosition + Vector3.up * GroundedRadius, Vector3.down, out RaycastHit hit, GroundedRadius * 2, GroundLayers, QueryTriggerInteraction.Ignore) ? hit.normal : Vector3.up;
-                        return Vector3.ProjectOnPlane(transform.right * move.x + transform.forward * move.y, normal);
-                        //return transform.right * move.x + transform.forward * move.y;
-                    }
-                    else
-                    {
-                        return transform.right * move.x + _mainCamera.transform.forward * move.y;
-                    }
-                }
-                else
-                {
-                    //Mathf.Abs(_mainCamera.transform.localRotation.x) > Mathf.Rad2Deg * Mathf.Asin((GroundedOffset + GroundedRadius) / (dashDuration * dashSpeed))
-                    //!Physics.CheckSphere(SpherePosition + _mainCamera.transform.forward * dashDuration * dashSpeed, GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore)
-                    if ((!Physics.SphereCast(SpherePosition, GroundedRadius, _mainCamera.transform.forward, out RaycastHit testHit, dashDuration * dashSpeed, GroundLayers)) || !Grounded)
-                    {
-                        return transform.right * move.x + _mainCamera.transform.forward * move.y;
-                    }
-                    else
-                    {
-                        Vector3 normal = Physics.Raycast(SpherePosition + Vector3.up * GroundedRadius, Vector3.down, out RaycastHit hit, GroundedRadius * 2, GroundLayers, QueryTriggerInteraction.Ignore) ? hit.normal : Vector3.up;
-                        return Vector3.ProjectOnPlane(transform.right * move.x + transform.forward * move.y, normal);
-                    }
-                }
+                Vector3 normal = Physics.Raycast(SpherePosition + Vector3.up * GroundedRadius, Vector3.down, out RaycastHit hit, GroundedRadius * 2, GroundLayers, QueryTriggerInteraction.Ignore) ? hit.normal : Vector3.up;
+                return Vector3.ProjectOnPlane(targetDirection, normal);
             }
         }
         private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
