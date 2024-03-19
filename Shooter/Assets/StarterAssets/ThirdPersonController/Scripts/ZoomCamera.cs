@@ -18,6 +18,6 @@ public class ZoomCamera : MonoBehaviour
     void Update()
     {
         if (zoomCamera == null || inputs == null) return;
-        zoomCamera.enabled = inputs.zoomIn;
+        zoomCamera.gameObject.SetActive(inputs.zoomIn);
     }
 }

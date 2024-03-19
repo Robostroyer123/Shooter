@@ -85,7 +85,7 @@ namespace StarterAssets
 			{
 				if(value.started)
 				{
-					zoomInToggle = !zoomInToggle;
+					zoomIn = !zoomIn;
 				}
 			}
 			else
