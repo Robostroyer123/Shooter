@@ -13,14 +13,19 @@ namespace StarterAssets
 		public bool jump;
 		public bool sprint;
 		public bool dash;
+        public bool zoomIn;
 
-		[Header("Movement Settings")]
+        [Header("Movement Settings")]
 		public bool analogMovement;
 
 		[Header("Mouse Cursor Settings")]
 		public bool cursorLocked = true;
 		public bool cursorInputForLook = true;
-		FirstPersonController First { get { return GetComponent<FirstPersonController>(); } }
+
+		[Header("Accessibility Settings")]
+		public bool zoomInToggle;
+
+        FirstPersonController First { get { return GetComponent<FirstPersonController>(); } }
 		ThirdPersonController Third { get { return GetComponent<ThirdPersonController>(); } }
 
 #if ENABLE_INPUT_SYSTEM
@@ -73,6 +78,21 @@ namespace StarterAssets
                 }
             }
         }
+
+		public void OnZoom(InputAction.CallbackContext value)
+		{
+			if(zoomInToggle)
+			{
+				if(value.started)
+				{
+					zoomInToggle = !zoomInToggle;
+				}
+			}
+			else
+			{
+				zoomIn = value.ReadValueAsButton();
+			}
+		}
 #endif
 
 

@@ -49,6 +49,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Zoom",
+                    "type": "Button",
+                    "id": "50c30a47-7d1f-4c9f-8f61-a4410ab13b13",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -247,6 +256,28 @@
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "Dash",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1edecfc9-7c08-469d-82bf-1b2af0f12b05",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "KeyboardMouse",
+                    "action": "Zoom",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "14d47c6b-eb81-4f3c-a84e-cd9b45e00c0f",
+                    "path": "<Gamepad>/buttonWest",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Zoom",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
