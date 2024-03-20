@@ -37,8 +37,7 @@ namespace StarterAssets
 		[Space(10)]
 		[Tooltip("Whether or not dashing requires moving the input stick.")]
 		public bool dashMoveInputRequired;
-		[Tooltip("Whether or not the dash direction is the direction the camera is facing, regardless of whether or not they are in the air.")]
-		public bool dashInCameraForward;
+        public bool dashInInputDirection;
 		public float dashSpeed = 20f;
 		public float dashDuration = 1;
 
@@ -364,32 +363,15 @@ namespace StarterAssets
             get
 			{
 				Vector2 move = _input.move != Vector2.zero ? _input.move : Vector2.up;
-				if (!dashInCameraForward)
-				{
-					if (GroundedSphere)
-					{
-						Vector3 normal = Physics.Raycast(SpherePosition + Vector3.up * GroundedRadius, Vector3.down, out RaycastHit hit, GroundedRadius * 2, GroundLayers, QueryTriggerInteraction.Ignore) ? hit.normal : Vector3.up;
-						return Vector3.ProjectOnPlane(transform.right * move.x + transform.forward * move.y, normal);
-						//return transform.right * move.x + transform.forward * move.y;
-					}
-					else
-					{
-						return transform.right * move.x + _mainCamera.transform.forward * move.y;
-					}
-				}
-				else
+                if (GroundedSphere || dashInInputDirection)
                 {
-					//Mathf.Abs(_mainCamera.transform.localRotation.x) > Mathf.Rad2Deg * Mathf.Asin((GroundedOffset + GroundedRadius) / (dashDuration * dashSpeed))
-					//!Physics.CheckSphere(SpherePosition + _mainCamera.transform.forward * dashDuration * dashSpeed, GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore)
-					if ((!Physics.SphereCast(SpherePosition, GroundedRadius, _mainCamera.transform.forward, out RaycastHit testHit, dashDuration * dashSpeed, GroundLayers)) || !Grounded)
-					{
-						return transform.right * move.x + _mainCamera.transform.forward * move.y;
-					}
-					else
-					{
-						Vector3 normal = Physics.Raycast(SpherePosition + Vector3.up * GroundedRadius, Vector3.down, out RaycastHit hit, GroundedRadius * 2, GroundLayers, QueryTriggerInteraction.Ignore) ? hit.normal : Vector3.up;
-						return Vector3.ProjectOnPlane(transform.right * move.x + transform.forward * move.y, normal);
-					}
+                    Vector3 normal = Physics.Raycast(SpherePosition + Vector3.up * GroundedRadius, Vector3.down, out RaycastHit hit, GroundedRadius * 2, GroundLayers, QueryTriggerInteraction.Ignore) ? hit.normal : Vector3.up;
+                    return Vector3.ProjectOnPlane(transform.right * move.x + transform.forward * move.y, normal);
+                    //return transform.right * move.x + transform.forward * move.y;
+                }
+                else
+                {
+                    return transform.right * move.x + _mainCamera.transform.forward * move.y;
                 }
             }
         }

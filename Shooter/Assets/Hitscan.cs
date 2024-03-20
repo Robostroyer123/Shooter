@@ -5,6 +5,7 @@ using StarterAssets;
 
 public class Hitscan : MonoBehaviour
 {
+    public GameObject hitPrefab;
     public LayerMask layerMask;
     public Transform hitscanOrigin;
     public float distance;
@@ -14,16 +15,24 @@ public class Hitscan : MonoBehaviour
         if (hitscanOrigin == null) hitscanOrigin = transform;
     }
 
-    private void Update()
+    //private void Update()
+    //{
+    //    if(TryGetComponent(out StarterAssetsInputs inputs))
+    //    {
+    //        if(inputs.shootHeld)
+    //        {
+    //            Shoot();
+    //        }
+    //    }
+    //}
+
+    public void Shoot()
     {
-        if(TryGetComponent(out StarterAssetsInputs inputs))
+        if (Physics.Raycast(hitscanOrigin.position, hitscanOrigin.forward, out RaycastHit hit, distance, layerMask))
         {
-            if(inputs.shootHeld)
+            if (hitPrefab != null)
             {
-                if(Physics.Raycast(hitscanOrigin.position, hitscanOrigin.forward, out RaycastHit hit, distance, layerMask))
-                {
-                    print(hit.transform.name);
-                }
+                Instantiate(hitPrefab, hit.point, Quaternion.Euler(hit.normal));
             }
         }
     }

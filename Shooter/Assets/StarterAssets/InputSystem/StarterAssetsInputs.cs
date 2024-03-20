@@ -101,6 +101,13 @@ namespace StarterAssets
 		public void OnShoot(InputAction.CallbackContext value)
 		{
 			shoot = value.started;
+			if(shoot)
+			{
+				if(TryGetComponent(out Hitscan hitscan))
+				{
+					hitscan.Shoot();
+				}
+			}
 			if (shootToggle)
 			{
 				if (value.started)
