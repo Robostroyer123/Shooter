@@ -1,4 +1,6 @@
 using UnityEngine;
+using DG.Tweening;
+using System.Collections;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -14,8 +16,9 @@ namespace StarterAssets
 		public bool sprint;
 		public bool dash;
         public bool zoomIn;
+		public bool shoot, shootHeld;
 
-        [Header("Movement Settings")]
+		[Header("Movement Settings")]
 		public bool analogMovement;
 
 		[Header("Mouse Cursor Settings")]
@@ -24,6 +27,7 @@ namespace StarterAssets
 
 		[Header("Accessibility Settings")]
 		public bool zoomInToggle;
+		public bool shootToggle;
 
         FirstPersonController First { get { return GetComponent<FirstPersonController>(); } }
 		ThirdPersonController Third { get { return GetComponent<ThirdPersonController>(); } }
@@ -93,30 +97,47 @@ namespace StarterAssets
 				zoomIn = value.ReadValueAsButton();
 			}
 		}
+
+		public void OnShoot(InputAction.CallbackContext value)
+		{
+			shoot = value.started;
+			if (shootToggle)
+			{
+				if (value.started)
+				{
+					shootHeld = !shootHeld;
+				}
+			}
+			else
+			{
+				shootHeld = value.ReadValueAsButton();
+			}
+		}
+
 #endif
 
 
-        //public void MoveInput(Vector2 newMoveDirection)
-        //{
-        //	move = newMoveDirection;
-        //} 
-        //
-        //public void LookInput(Vector2 newLookDirection)
-        //{
-        //	look = newLookDirection;
-        //}
-        //
-        //public void JumpInput(bool newJumpState)
-        //{
-        //	jump = newJumpState;
-        //}
-        //
-        //public void SprintInput(bool newSprintState)
-        //{
-        //	sprint = newSprintState;
-        //}
+		//public void MoveInput(Vector2 newMoveDirection)
+		//{
+		//	move = newMoveDirection;
+		//} 
+		//
+		//public void LookInput(Vector2 newLookDirection)
+		//{
+		//	look = newLookDirection;
+		//}
+		//
+		//public void JumpInput(bool newJumpState)
+		//{
+		//	jump = newJumpState;
+		//}
+		//
+		//public void SprintInput(bool newSprintState)
+		//{
+		//	sprint = newSprintState;
+		//}
 
-        private void OnApplicationFocus(bool hasFocus)
+		private void OnApplicationFocus(bool hasFocus)
 		{
 			SetCursorState(cursorLocked);
 		}
