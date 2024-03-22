@@ -153,6 +153,7 @@ GameObject:
   - component: {fileID: 5420857361349278248}
   - component: {fileID: 8616685848737228376}
   - component: {fileID: 305652293186233283}
+  - component: {fileID: 7854078246227782986}
   m_Layer: 8
   m_Name: PlayerCapsule
   m_TagString: Player
@@ -275,7 +276,7 @@ MonoBehaviour:
   zoomIn: 0
   shoot: 0
   shootHeld: 0
-  analogMovement: 0
+  analogMovement: 1
   cursorLocked: 1
   cursorInputForLook: 1
   zoomInToggle: 0
@@ -420,3 +421,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   zoomCamera: {fileID: 0}
+--- !u!114 &7854078246227782986
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8616685848737228372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d65add4453a8e941be56997a35ec8db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hitPrefab: {fileID: 7316899376736508360, guid: c27248656cc274a4283a38070050e473,
+    type: 3}
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  hitscanOrigin: {fileID: 0}
+  distance: 100

@@ -51,7 +51,7 @@ namespace StarterAssets
 			jump = value.ReadValueAsButton();
 			if (value.started)
 			{
-				if(First != null && (First.Grounded || First.HasMidairJumps))
+				if(First != null && (First.Grounded || First.HasMidairJumps || First.OnWalled))
 				{
 					First.Jump();
 				}

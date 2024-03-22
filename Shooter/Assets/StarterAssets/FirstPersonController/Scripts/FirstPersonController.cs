@@ -52,10 +52,14 @@ namespace StarterAssets
 		public bool Grounded = true;
 		[Tooltip("Useful for rough ground")]
 		public float GroundedOffset = -0.14f;
+		public Vector2 LeftWallOffset = Vector2.one * -0.14f, RightWallOffset = Vector2.one * 0.14f;
 		[Tooltip("The radius of the grounded check. Should match the radius of the CharacterController")]
 		public float GroundedRadius = 0.5f;
 		[Tooltip("What layers the character uses as ground")]
 		public LayerMask GroundLayers;
+
+		[Space(10)]
+		public float wallRunDutch = 15;
 
 		[Header("Cinemachine")]
 		[Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
@@ -108,16 +112,43 @@ namespace StarterAssets
 			}
 		}
 		// set sphere position, with offset
-		private Vector3 SpherePosition { get { return new(transform.position.x, transform.position.y - GroundedOffset, transform.position.z); } }
+		private Vector3 GroundedSpherePosition { get { return new(transform.position.x, transform.position.y - GroundedOffset, transform.position.z); } }
+		private Vector3 LeftWallSpherePosition { get { return new Vector3(transform.position.x, transform.position.y + LeftWallOffset.y, transform.position.z) + transform.right * LeftWallOffset.x; } }
+		private Vector3 RightWallSpherePosition { get { return new Vector3(transform.position.x, transform.position.y + RightWallOffset.y, transform.position.z) + transform.right * RightWallOffset.x; } }
+		private bool CollisionSphere(Vector3 position)
+        {
+			return Physics.CheckSphere(position, GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore);
+		}
         private bool GroundedSphere
         {
             get
             {
-				return Physics.CheckSphere(SpherePosition, GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore);
+				return CollisionSphere(GroundedSpherePosition);
+            }
+		}
+		private bool LeftWallSphere
+		{
+			get
+			{
+				return CollisionSphere(LeftWallSpherePosition);
+			}
+		}
+		private bool RightWallSphere
+		{
+			get
+			{
+				return CollisionSphere(RightWallSpherePosition);
+			}
+		}
+		public bool OnWalled
+        {
+			get
+            {
+				return LeftWallSphere || RightWallSphere;
             }
         }
-
-        private void Awake()
+		public bool WallCling { get { return (LeftWallSphere && _input.move.x < 0) || (RightWallSphere && _input.move.normalized.x > 0); } }
+		private void Awake()
 		{
 			// get a reference to our main camera
 			if (_mainCamera == null)
@@ -146,6 +177,7 @@ namespace StarterAssets
 			JumpAndGravity();
 			GroundedCheck();
 			Move();
+			WallRunMovement();
 		}
 
 		private void LateUpdate()
@@ -231,9 +263,8 @@ namespace StarterAssets
 				// move
 				inputDirection = transform.right * _input.move.x + transform.forward * _input.move.y;
 			}
-
             // move the player
-            if (!_isDashing) _controller.Move(inputDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime + dashVelocity * Time.deltaTime);
+            if (!_isDashing && !WallRun()) _controller.Move(inputDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime + dashVelocity * Time.deltaTime);
 		}
 
 		private void JumpAndGravity()
@@ -276,15 +307,54 @@ namespace StarterAssets
 			//	// if we are not grounded, do not jump
 			//	_input.jump = false;
 			//}
-
 			// apply gravity over time if under terminal (multiply by delta time twice to linearly speed up over time)
 			if (_verticalVelocity < _terminalVelocity)
 			{
 				_verticalVelocity += Gravity * Time.deltaTime;
 			}
 		}
+		private bool WallRun()
+        {
+			if(!Grounded)
+            {
+				if(WallCling)
+                {
+					return true;
+                }
+			}
+			return false;
+		}
+		
+		void WallRunMovement()
+		{
+			//float prevDutch = 0;
+			//float desiredDutch = WallRun() ? wallRunDutch * _input.move.x : 0;
+			//DOVirtual.Float(prevDutch, desiredDutch, 0.2f, Dutch);
+			if (!WallRun())
+            {
+				//prevDutch = desiredDutch;
+                return;
+            }
+            Vector3 normal;
+            RaycastHit hit;
+            if (RightWallSphere)
+            {
+                normal = Physics.Raycast(RightWallSpherePosition - Vector3.right * GroundedRadius, transform.right, out hit, GroundedRadius) ? hit.normal : -transform.right;
+            }
+            else
+            {
+                normal = Physics.Raycast(LeftWallSpherePosition + Vector3.right * GroundedRadius, -transform.right, out hit, GroundedRadius) ? hit.normal : transform.right;
+            }
+            Vector3 wallClimbDirection = Vector3.ProjectOnPlane(transform.forward, normal);
+            _controller.Move(SprintSpeed * Time.deltaTime * wallClimbDirection);
+			//prevDutch = desiredDutch;
+		}
+		void Dutch(float dutch)
+        {
+			Camera.main.GetComponent<Cinemachine.CinemachineBrain>().ActiveVirtualCamera.VirtualCameraGameObject.GetComponent<Cinemachine.CinemachineVirtualCamera>().m_Lens.Dutch = dutch;
 
-		public void Jump()
+		}
+        public void Jump()
         {
             // the square root of H * -2 * G = how much velocity needed to reach desired height
             _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
@@ -322,7 +392,7 @@ namespace StarterAssets
 		IEnumerator DashMovement(float startTime)
 		{
 			_verticalVelocity = 0;
-			_controller.SimpleMove(Vector3.zero);
+			_controller.SimpleMove(Vector3.right * _controller.velocity.x + Vector3.forward * _controller.velocity.z);
 			if (!_dashCancel)
 			{
 				while (Time.time < startTime + dashDuration)
@@ -365,7 +435,7 @@ namespace StarterAssets
 				Vector2 move = _input.move != Vector2.zero ? _input.move : Vector2.up;
                 if (GroundedSphere || dashInInputDirection)
                 {
-                    Vector3 normal = Physics.Raycast(SpherePosition + Vector3.up * GroundedRadius, Vector3.down, out RaycastHit hit, GroundedRadius * 2, GroundLayers, QueryTriggerInteraction.Ignore) ? hit.normal : Vector3.up;
+                    Vector3 normal = Physics.Raycast(GroundedSpherePosition + Vector3.up * GroundedOffset, Vector3.down, out RaycastHit hit, GroundedRadius * 2, GroundLayers, QueryTriggerInteraction.Ignore) ? hit.normal : Vector3.up;
                     return Vector3.ProjectOnPlane(transform.right * move.x + transform.forward * move.y, normal);
                     //return transform.right * move.x + transform.forward * move.y;
                 }
@@ -392,7 +462,19 @@ namespace StarterAssets
 			else Gizmos.color = transparentRed;
 
 			// when selected, draw a gizmo in the position of, and matching radius of, the grounded collider
-			Gizmos.DrawSphere(new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z), GroundedRadius);
+			Gizmos.DrawSphere(GroundedSpherePosition, GroundedRadius);
+
+			if (LeftWallSphere) Gizmos.color = transparentGreen;
+			else Gizmos.color = transparentRed;
+
+			// when selected, draw a gizmo in the position of, and matching radius of, the grounded collider
+			Gizmos.DrawSphere(LeftWallSpherePosition, GroundedRadius);
+
+			if (RightWallSphere) Gizmos.color = transparentGreen;
+			else Gizmos.color = transparentRed;
+
+			// when selected, draw a gizmo in the position of, and matching radius of, the grounded collider
+			Gizmos.DrawSphere(RightWallSpherePosition, GroundedRadius);
 		}
 	}
 }
