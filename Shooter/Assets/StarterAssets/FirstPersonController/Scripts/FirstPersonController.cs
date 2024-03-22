@@ -50,6 +50,7 @@ namespace StarterAssets
 		[Header("Player Grounded")]
 		[Tooltip("If the character is grounded or not. Not part of the CharacterController built in grounded check")]
 		public bool Grounded = true;
+		public bool OnRightWall, OnLeftWall;
 		[Tooltip("Useful for rough ground")]
 		public float GroundedOffset = -0.14f;
 		public Vector2 LeftWallOffset = Vector2.one * -0.14f, RightWallOffset = Vector2.one * 0.14f;
@@ -95,6 +96,8 @@ namespace StarterAssets
 		private const float _threshold = 0.01f;
 
 		private float _timeSinceLeftGround;
+
+		private float _timeSinceLeftWallLeft, _timeSinceLeftWallRight;
 
 		private int _numberOfMidairJumpsLeft;
 
@@ -176,6 +179,7 @@ namespace StarterAssets
 		{
 			JumpAndGravity();
 			GroundedCheck();
+			WallCheck();
 			Move();
 			WallRunMovement();
 		}
@@ -184,7 +188,11 @@ namespace StarterAssets
 		{
 			CameraRotation();
 		}
-
+		void WallCheck()
+        {
+			LeftWallCheck();
+			RightWallCheck();
+        }
 		private void GroundedCheck()
 		{
 			if(!GroundedSphere)
@@ -197,6 +205,30 @@ namespace StarterAssets
 				_numberOfMidairJumpsLeft = MaxNumberOfMidairJumps;
 			}
 			Grounded = _timeSinceLeftGround < CoyoteTime;
+		}
+		private void LeftWallCheck()
+		{
+			if (!LeftWallSphere)
+			{
+				_timeSinceLeftWallLeft += Time.deltaTime;
+			}
+			else
+			{
+				_timeSinceLeftWallLeft = 0;
+			}
+			OnLeftWall = _timeSinceLeftWallLeft < CoyoteTime;
+		}
+		private void RightWallCheck()
+		{
+			if (!RightWallSphere)
+			{
+				_timeSinceLeftWallRight += Time.deltaTime;
+			}
+			else
+			{
+				_timeSinceLeftWallRight = 0;
+			}
+			OnRightWall = _timeSinceLeftWallRight < CoyoteTime;
 		}
 
 		private void CameraRotation()
@@ -315,7 +347,7 @@ namespace StarterAssets
 		}
 		private bool WallRun()
         {
-			if(!Grounded)
+			if(!GroundedSphere)
             {
 				if(WallCling)
                 {
@@ -327,9 +359,10 @@ namespace StarterAssets
 		
 		void WallRunMovement()
 		{
-			//float prevDutch = 0;
-			//float desiredDutch = WallRun() ? wallRunDutch * _input.move.x : 0;
+			float prevDutch = 0;
+			float desiredDutch = WallRun() ? wallRunDutch * _input.move.x : 0;
 			//DOVirtual.Float(prevDutch, desiredDutch, 0.2f, Dutch);
+			Dutch(desiredDutch);
 			if (!WallRun())
             {
 				//prevDutch = desiredDutch;
@@ -337,17 +370,22 @@ namespace StarterAssets
             }
             Vector3 normal;
             RaycastHit hit;
-            if (RightWallSphere)
+            if (OnRightWall)
             {
                 normal = Physics.Raycast(RightWallSpherePosition - Vector3.right * GroundedRadius, transform.right, out hit, GroundedRadius) ? hit.normal : -transform.right;
             }
-            else
+            else if(OnLeftWall)
             {
                 normal = Physics.Raycast(LeftWallSpherePosition + Vector3.right * GroundedRadius, -transform.right, out hit, GroundedRadius) ? hit.normal : transform.right;
             }
+			else
+            {
+				//Shouldn't happen but just in case
+				normal = Vector3.right;
+            }
             Vector3 wallClimbDirection = Vector3.ProjectOnPlane(transform.forward, normal);
             _controller.Move(SprintSpeed * Time.deltaTime * wallClimbDirection);
-			//prevDutch = desiredDutch;
+			prevDutch = desiredDutch;
 		}
 		void Dutch(float dutch)
         {
