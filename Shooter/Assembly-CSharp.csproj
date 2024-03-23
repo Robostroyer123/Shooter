@@ -929,13 +929,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="Unity.Sequences.Editor.csproj">
-      <Project>{823E41BC-80D1-A7F9-2618-388A6505703E}</Project>
-      <Name>Unity.Sequences.Editor</Name>
-    </ProjectReference>
     <ProjectReference Include="Unity.Recorder.Editor.csproj">
       <Project>{CC88CA58-94F0-C83F-D46E-6E919C9EA29C}</Project>
       <Name>Unity.Recorder.Editor</Name>
+    </ProjectReference>
+    <ProjectReference Include="Unity.Sequences.Editor.csproj">
+      <Project>{823E41BC-80D1-A7F9-2618-388A6505703E}</Project>
+      <Name>Unity.Sequences.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.RenderPipelines.Core.Runtime.csproj">
       <Project>{C67CA705-359D-F9E8-FC8C-C4E3F31F648C}</Project>
@@ -1153,13 +1153,13 @@
       <Project>{7ADFE87E-6776-BFA9-9CD2-70C64683CACF}</Project>
       <Name>Autodesk.Fbx.Editor</Name>
     </ProjectReference>
-    <ProjectReference Include="Unity.Mathematics.csproj">
-      <Project>{969A3F7D-D004-44B5-4E04-B869C79894D4}</Project>
-      <Name>Unity.Mathematics</Name>
-    </ProjectReference>
     <ProjectReference Include="Unity.Formats.Alembic.Runtime.csproj">
       <Project>{B3D0C232-D873-D71A-52F0-1AF67A305B7B}</Project>
       <Name>Unity.Formats.Alembic.Runtime</Name>
+    </ProjectReference>
+    <ProjectReference Include="Unity.Mathematics.csproj">
+      <Project>{969A3F7D-D004-44B5-4E04-B869C79894D4}</Project>
+      <Name>Unity.Mathematics</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.RenderPipelines.Universal.Shaders.csproj">
       <Project>{12E3DFA5-7D70-09A5-E0E3-AF96F135DCEE}</Project>
