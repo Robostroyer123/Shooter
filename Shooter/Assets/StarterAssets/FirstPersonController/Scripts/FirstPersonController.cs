@@ -62,6 +62,7 @@ namespace StarterAssets
 		public LayerMask GroundLayers;
 
 		[Space(10)]
+		public float wallRunTime;
 		public float wallRunDutch = 15;
 		[Range(0, 1)] public float climbHorizontalMovementFraction = .25f;
 
@@ -103,6 +104,8 @@ namespace StarterAssets
 		private float _timeSinceLeftWallLeft, _timeSinceLeftWallRight;
 
 		private float _timeSinceLeftClimb;
+
+		private float _timeSinceWallRun;
 
 		private int _numberOfMidairJumpsLeft;
 
@@ -369,6 +372,7 @@ namespace StarterAssets
 			//	_input.jump = false;
 			//}
 			// apply gravity over time if under terminal (multiply by delta time twice to linearly speed up over time)
+
 			if (_verticalVelocity < _terminalVelocity)
 			{
 				_verticalVelocity += Gravity * Time.deltaTime;
@@ -388,9 +392,16 @@ namespace StarterAssets
 			if (!WallRun() || WallClimbMove)
             {
 				//prevDutch = desiredDutch;
+				_timeSinceWallRun = 0;
                 return;
-            }
-            Vector3 normal;
+			}
+			if (_timeSinceWallRun < wallRunTime)
+			{
+				_timeSinceWallRun += Time.deltaTime;
+				_verticalVelocity = 0;
+			}
+
+			Vector3 normal;
             RaycastHit hit;
             if (OnRightWall)
             {
@@ -406,7 +417,7 @@ namespace StarterAssets
 				return;
 			}
             Vector3 wallRunDirection = Vector3.ProjectOnPlane(transform.forward, normal);
-            _controller.Move(SprintSpeed * Time.deltaTime * wallRunDirection.normalized);
+            _controller.Move(SprintSpeed * Time.deltaTime * wallRunDirection.normalized + Vector3.up * _verticalVelocity);
 			//prevDutch = desiredDutch;
 		}
 		public bool WallClimbMove
@@ -418,7 +429,7 @@ namespace StarterAssets
         }
 		void ClimbMovement()
         {
-			if (WallClimbMove)
+			if (WallClimbMove && !WallRun())
 			{
 				_verticalVelocity = 0;
 				Vector3 normal = Physics.Raycast(ClimbSpherePosition - transform.forward * GroundedRadius, transform.forward, out RaycastHit hit, GroundedRadius * 2, GroundLayers, QueryTriggerInteraction.Ignore) ? hit.normal : -transform.forward;
