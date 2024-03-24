@@ -428,12 +428,28 @@
       <HintPath>C:\Program Files\Unity\Hub\Editor\2022.3.19f1\Editor\Data\Managed\UnityEngine\UnityEditor.UnityConnectModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="websocket-sharp">
+      <HintPath>Library\PackageCache\com.unity.services.wire@1.2.2\Plugins\websocket-sharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Collections.LowLevel.ILSupport">
+      <HintPath>Library\PackageCache\com.unity.collections@1.2.4\Unity.Collections.LowLevel.ILSupport\Unity.Collections.LowLevel.ILSupport.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="DOTween">
       <HintPath>Assets\Plugins\Demigiant\DOTween\DOTween.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.VisualScripting.Antlr3.Runtime">
       <HintPath>Library\PackageCache\com.unity.visualscripting@1.9.1\Runtime\VisualScripting.Flow\Dependencies\NCalc\Unity.VisualScripting.Antlr3.Runtime.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>Library\PackageCache\com.unity.nuget.newtonsoft-json@3.2.1\Runtime\Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>Library\PackageCache\com.unity.nuget.mono-cecil@1.11.4\Mono.Cecil.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UMotionApplication">
@@ -950,6 +966,14 @@
       <Project>{AD02B6C8-4EC8-0ED7-9129-E87811BC181D}</Project>
       <Name>Unity.Burst.Editor</Name>
     </ProjectReference>
+    <ProjectReference Include="Unity.Services.Core.csproj">
+      <Project>{212B1524-4149-7403-A460-BCC30EFED0D3}</Project>
+      <Name>Unity.Services.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="Unity.Networking.Transport.csproj">
+      <Project>{A30BBA2F-0200-90F8-217A-6EA12570FFCA}</Project>
+      <Name>Unity.Networking.Transport</Name>
+    </ProjectReference>
     <ProjectReference Include="Unity.ProBuilder.AddOns.Editor.csproj">
       <Project>{E27369D6-7D45-36D7-F8C3-6AB19341C53F}</Project>
       <Name>Unity.ProBuilder.AddOns.Editor</Name>
@@ -978,13 +1002,37 @@
       <Project>{A33E0678-7C73-6EBD-8ED5-37DB3A50C1B3}</Project>
       <Name>Unity.Mathematics.Editor</Name>
     </ProjectReference>
+    <ProjectReference Include="Unity.Netcode.Components.csproj">
+      <Project>{DD2A11DC-32D1-80F6-1D9D-EDDA765EA149}</Project>
+      <Name>Unity.Netcode.Components</Name>
+    </ProjectReference>
+    <ProjectReference Include="Unity.Netcode.Editor.csproj">
+      <Project>{34D17570-2475-4115-7BF4-775EFF90829A}</Project>
+      <Name>Unity.Netcode.Editor</Name>
+    </ProjectReference>
     <ProjectReference Include="Unity.Polybrush.Editor.csproj">
       <Project>{DB667D8D-DA3D-1F76-5B4D-9E3E7530A275}</Project>
       <Name>Unity.Polybrush.Editor</Name>
     </ProjectReference>
+    <ProjectReference Include="Unity.Services.Core.Environments.csproj">
+      <Project>{D1CB18CB-E654-1400-7B42-61438FC9C897}</Project>
+      <Name>Unity.Services.Core.Environments</Name>
+    </ProjectReference>
+    <ProjectReference Include="Unity.Services.Relay.csproj">
+      <Project>{41118247-8389-87D5-D360-F05A49E46A09}</Project>
+      <Name>Unity.Services.Relay</Name>
+    </ProjectReference>
     <ProjectReference Include="Unity.RenderPipelines.Core.ShaderLibrary.csproj">
       <Project>{4007E195-16B2-10B1-708D-6D824F614A6D}</Project>
       <Name>Unity.RenderPipelines.Core.ShaderLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="Unity.Collections.csproj">
+      <Project>{0D6E8911-EE64-678F-D0A4-46FFC7061655}</Project>
+      <Name>Unity.Collections</Name>
+    </ProjectReference>
+    <ProjectReference Include="Unity.Netcode.Runtime.csproj">
+      <Project>{4A5112DF-6090-C07C-86A6-76B4B9BC8048}</Project>
+      <Name>Unity.Netcode.Runtime</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.Formats.Fbx.Editor.csproj">
       <Project>{4EA0CFAF-AC8A-EAB0-3AF9-D37AEFD902BB}</Project>
@@ -994,6 +1042,10 @@
       <Project>{78F955A6-2935-9744-0153-F8507388D6D6}</Project>
       <Name>UMotionSourceApplication</Name>
     </ProjectReference>
+    <ProjectReference Include="Unity.Netcode.Editor.PackageChecker.csproj">
+      <Project>{7FA40D84-53AA-3171-0245-42509705BC4A}</Project>
+      <Name>Unity.Netcode.Editor.PackageChecker</Name>
+    </ProjectReference>
     <ProjectReference Include="PPv2URPConverters.csproj">
       <Project>{1274707B-9226-F674-63AB-36800E54FC61}</Project>
       <Name>PPv2URPConverters</Name>
@@ -1001,6 +1053,10 @@
     <ProjectReference Include="Unity.TextMeshPro.csproj">
       <Project>{B0178295-AC86-200B-C0C7-0FB15859D9DA}</Project>
       <Name>Unity.TextMeshPro</Name>
+    </ProjectReference>
+    <ProjectReference Include="Unity.Services.Core.Analytics.csproj">
+      <Project>{1EB77F5D-6E12-8CE1-48A5-E3102272A669}</Project>
+      <Name>Unity.Services.Core.Analytics</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.Recorder.csproj">
       <Project>{BDD5E9A8-31C0-9684-778D-CE349FF583C8}</Project>
@@ -1098,6 +1154,10 @@
       <Project>{B001B377-39FD-C9C7-17B7-8C1BE745A7EB}</Project>
       <Name>Unity.VisualScripting.Core.Editor</Name>
     </ProjectReference>
+    <ProjectReference Include="Unity.Services.QoS.csproj">
+      <Project>{03983ECC-1182-6B2D-43C8-703D5C21FF61}</Project>
+      <Name>Unity.Services.QoS</Name>
+    </ProjectReference>
     <ProjectReference Include="UnityEngine.UI.csproj">
       <Project>{D0F0922B-E19E-3AC4-3CFA-E888DE82C075}</Project>
       <Name>UnityEngine.UI</Name>
@@ -1150,21 +1210,33 @@
       <Project>{54A0130C-1620-31A9-CE4B-E4BCB80FA64B}</Project>
       <Name>Unity.VisualScripting.State.Editor</Name>
     </ProjectReference>
-    <ProjectReference Include="Autodesk.Fbx.Editor.csproj">
-      <Project>{7ADFE87E-6776-BFA9-9CD2-70C64683CACF}</Project>
-      <Name>Autodesk.Fbx.Editor</Name>
+    <ProjectReference Include="Unity.Services.Authentication.csproj">
+      <Project>{6B20319E-42B6-B31A-D840-0836BA153DCE}</Project>
+      <Name>Unity.Services.Authentication</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.Formats.Alembic.Runtime.csproj">
       <Project>{B3D0C232-D873-D71A-52F0-1AF67A305B7B}</Project>
       <Name>Unity.Formats.Alembic.Runtime</Name>
     </ProjectReference>
+    <ProjectReference Include="Unity.Services.Lobbies.csproj">
+      <Project>{D7442332-5550-FBBF-35AB-400A762BC862}</Project>
+      <Name>Unity.Services.Lobbies</Name>
+    </ProjectReference>
     <ProjectReference Include="Unity.Mathematics.csproj">
       <Project>{969A3F7D-D004-44B5-4E04-B869C79894D4}</Project>
       <Name>Unity.Mathematics</Name>
     </ProjectReference>
+    <ProjectReference Include="Autodesk.Fbx.Editor.csproj">
+      <Project>{7ADFE87E-6776-BFA9-9CD2-70C64683CACF}</Project>
+      <Name>Autodesk.Fbx.Editor</Name>
+    </ProjectReference>
     <ProjectReference Include="Unity.RenderPipelines.Universal.Shaders.csproj">
       <Project>{12E3DFA5-7D70-09A5-E0E3-AF96F135DCEE}</Project>
       <Name>Unity.RenderPipelines.Universal.Shaders</Name>
+    </ProjectReference>
+    <ProjectReference Include="Unity.Networking.Editor.csproj">
+      <Project>{8F4A14AA-DB01-E25A-D5B9-F88E7A270CC9}</Project>
+      <Name>Unity.Networking.Editor</Name>
     </ProjectReference>
     <ProjectReference Include="Unity.TextMeshPro.Editor.csproj">
       <Project>{E643445B-3A6C-C3DD-DE83-98196BB6F370}</Project>

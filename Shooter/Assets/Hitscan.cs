@@ -33,6 +33,10 @@ public class Hitscan : MonoBehaviour
             if (hitPrefab != null)
             {
                 Instantiate(hitPrefab, hit.point, Quaternion.Euler(hit.normal));
+                if(hit.transform.TryGetComponent(out Health health))
+                {
+                    health.TakeDamage(1);
+                }
             }
         }
     }
