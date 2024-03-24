@@ -7,6 +7,7 @@ public class Health : MonoBehaviour
     public float maxHealth;
     float health;
     bool isDead;
+    public bool IsDead { get { return isDead; } }
     public void SetHealth(float value)
     {
         health = Mathf.Clamp(value, 0, maxHealth);
