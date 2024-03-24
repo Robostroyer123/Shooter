@@ -64,6 +64,7 @@ namespace StarterAssets
 		[Space(10)]
 		public float wallRunTime;
 		public float wallRunDutch = 15;
+		public float climbSpeed = 8;
 		[Range(0, 1)] public float climbHorizontalMovementFraction = .25f;
 
 		[Header("Cinemachine")]
@@ -434,7 +435,7 @@ namespace StarterAssets
 				_verticalVelocity = 0;
 				Vector3 normal = Physics.Raycast(ClimbSpherePosition - transform.forward * GroundedRadius, transform.forward, out RaycastHit hit, GroundedRadius * 2, GroundLayers, QueryTriggerInteraction.Ignore) ? hit.normal : -transform.forward;
 				Vector3 wallClimbDirection = Vector3.ProjectOnPlane(Vector3.up * _input.move.y + climbHorizontalMovementFraction * _input.move.x * transform.right, normal);
-				_controller.Move(MoveSpeed * Time.deltaTime * wallClimbDirection.normalized);
+				_controller.Move(climbSpeed * Time.deltaTime * wallClimbDirection.normalized);
 			}
 
         }
