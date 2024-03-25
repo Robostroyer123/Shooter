@@ -17,6 +17,7 @@ namespace StarterAssets
 		public bool dash;
         public bool zoomIn;
 		public bool shoot, shootHeld;
+		public InputAction.CallbackContext shootValue;
 
 		[Header("Movement Settings")]
 		public bool analogMovement;
@@ -31,6 +32,7 @@ namespace StarterAssets
 
         FirstPersonController First { get { return GetComponent<FirstPersonController>(); } }
 		ThirdPersonController Third { get { return GetComponent<ThirdPersonController>(); } }
+		Hitscan Hitscan { get { return GetComponent<Hitscan>(); } }
 
 #if ENABLE_INPUT_SYSTEM
 		public void OnMove(InputAction.CallbackContext value)
@@ -100,14 +102,15 @@ namespace StarterAssets
 
 		public void OnShoot(InputAction.CallbackContext value)
 		{
+			shootValue = value;
 			shoot = value.started;
-			if(shoot)
-			{
-				if(TryGetComponent(out Hitscan hitscan))
-				{
-					hitscan.Shoot();
-				}
-			}
+			//if(value.ReadValueAsButton())
+			//{
+			//	if(Hitscan != null)
+			//	{
+			//		Hitscan.Shoot();
+			//	}
+			//}
 			if (shootToggle)
 			{
 				if (value.started)
