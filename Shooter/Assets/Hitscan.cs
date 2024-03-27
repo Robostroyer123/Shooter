@@ -6,8 +6,9 @@ using StarterAssets;
 public class Hitscan : MonoBehaviour
 {
     [Tooltip("Whether or not holding the button down fires the gun.")] public bool buttonHeld;
-    public GameObject hitPrefab;
+    public GameObject hitPrefab, missPrefab;
     public LayerMask layerMask;
+    public string hitTag;
     public Transform hitscanOrigin;
     public float distance;
     [Tooltip("Time inbetween shots.")] public float firingTime;
@@ -39,12 +40,19 @@ public class Hitscan : MonoBehaviour
         timeSinceLastFire = 0;
         if (Physics.Raycast(hitscanOrigin.position, hitscanOrigin.forward, out RaycastHit hit, distance, layerMask))
         {
-            if (hitPrefab != null)
+            if(hit.transform.TryGetComponent(out Health health))
             {
-                Instantiate(hitPrefab, hit.point, Quaternion.Euler(hit.normal));
-                if(hit.transform.TryGetComponent(out Health health))
+                if (hitPrefab != null)
                 {
-                    health.TakeDamage(1);
+                    Instantiate(hitPrefab, hit.point, Quaternion.Euler(hit.normal));
+                    health.TakeDamage(1, transform);
+                }
+            }
+            else
+            {
+                if(missPrefab != null)
+                {
+                    Instantiate(missPrefab, hit.point, Quaternion.Euler(hit.normal));
                 }
             }
         }

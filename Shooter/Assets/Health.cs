@@ -7,6 +7,7 @@ public class Health : MonoBehaviour
     public float maxHealth;
     float health;
     bool isDead;
+    TeamSetting Team { get { return GetComponent<TeamSetting>(); } }
     public bool IsDead { get { return isDead; } }
     public void SetHealth(float value)
     {
@@ -18,15 +19,25 @@ public class Health : MonoBehaviour
         SetHealth(maxHealth);
     }
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, Transform instigator = null)
     {
+        if (OnSameTeam(instigator))
+        {
+            return;
+        }
         health = Mathf.Max(health - damage, 0);
-        if(health <= 0 && !isDead)
+        if (health <= 0 && !isDead)
         {
             isDead = true;
-            Die();
+            Die(instigator);
         }
     }
+
+    private bool OnSameTeam(Transform instigator)
+    {
+        return Team != null && instigator.TryGetComponent(out TeamSetting enemyTeam) && enemyTeam.Team == Team.Team;
+    }
+
     public void HealHealth(float value, bool resurrect = false)
     {
         if(resurrect && isDead)
@@ -41,9 +52,9 @@ public class Health : MonoBehaviour
         }
     }
 
-    void Die()
+    void Die(Transform instigator)
     {
-        print("Die");
+        print("Die" + instigator);
     }
 
     void Resurrect()

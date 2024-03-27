@@ -64,7 +64,8 @@ namespace StarterAssets
 		[Space(10)]
 		public float wallRunTime;
 		public float wallRunDutch = 15;
-		public float climbSpeed = 8;
+        public float wallRunEndVerticalVelocity = 15;
+        public float climbSpeed = 8;
 		[Range(0, 1)] public float climbHorizontalMovementFraction = .25f;
 
 		[Header("Cinemachine")]
@@ -110,7 +111,9 @@ namespace StarterAssets
 
 		private int _numberOfMidairJumpsLeft;
 
-		private bool _isDashing, _dashCancel;
+        float wallRunVerticalVelocity;
+
+        private bool _isDashing, _dashCancel;
 		public bool HasMidairJumps { get { return _numberOfMidairJumpsLeft > 0; } }
         private bool IsCurrentDeviceMouse
 		{
@@ -340,7 +343,7 @@ namespace StarterAssets
 				_fallTimeoutDelta = FallTimeout;
 
 				// stop our velocity dropping infinitely when grounded
-				if (_verticalVelocity < 0.0f && _controller.isGrounded)
+				if (_controller.isGrounded && _verticalVelocity < 0.0f)
 				{
 					_verticalVelocity = -2f;
 				}
@@ -381,7 +384,7 @@ namespace StarterAssets
 		}
 		public bool WallRun()
 		{
-			return !Grounded && WallCling && !(OnRightWall && OnLeftWall);
+			return !Grounded && WallCling && !(OnRightWall && OnLeftWall) && !Physics.Raycast(ClimbSpherePosition - transform.forward * GroundedRadius, transform.forward, GroundedRadius * 2, GroundLayers, QueryTriggerInteraction.Ignore);
 		}
 
 		void WallRunMovement()
@@ -400,6 +403,11 @@ namespace StarterAssets
 			{
 				_timeSinceWallRun += Time.deltaTime;
 				_verticalVelocity = 0;
+                wallRunVerticalVelocity = 0;
+            }
+			else
+			{
+				wallRunVerticalVelocity = wallRunEndVerticalVelocity;
 			}
 
 			Vector3 normal;
@@ -418,7 +426,7 @@ namespace StarterAssets
 				return;
 			}
             Vector3 wallRunDirection = Vector3.ProjectOnPlane(transform.forward, normal);
-            _controller.Move(SprintSpeed * Time.deltaTime * wallRunDirection.normalized + Vector3.up * _verticalVelocity);
+            _controller.Move(SprintSpeed * Time.deltaTime * wallRunDirection.normalized + Time.deltaTime * wallRunVerticalVelocity * Vector3.up);
 			//prevDutch = desiredDutch;
 		}
 		public bool WallClimbMove
