@@ -26,6 +26,7 @@ public class Health : MonoBehaviour
             return;
         }
         health = Mathf.Max(health - damage, 0);
+        print("Hit: " + transform.name);
         if (health <= 0 && !isDead)
         {
             isDead = true;

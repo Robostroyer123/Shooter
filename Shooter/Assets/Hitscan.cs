@@ -8,7 +8,6 @@ public class Hitscan : MonoBehaviour
     [Tooltip("Whether or not holding the button down fires the gun.")] public bool buttonHeld;
     public GameObject hitPrefab, missPrefab;
     public LayerMask layerMask;
-    public string hitTag;
     public Transform hitscanOrigin;
     public float distance;
     [Tooltip("Time inbetween shots.")] public float firingTime;
