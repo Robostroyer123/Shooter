@@ -62,6 +62,7 @@ namespace StarterAssets
 		public LayerMask GroundLayers;
 
 		[Space(10)]
+		public bool canWallRun, canClimb;
 		public float wallRunTime;
 		public float wallRunDutch = 15;
         public float wallRunEndVerticalVelocity = 15;
@@ -384,7 +385,7 @@ namespace StarterAssets
 		}
 		public bool WallRun()
 		{
-			return !Grounded && WallCling && !(OnRightWall && OnLeftWall) && !Physics.Raycast(ClimbSpherePosition - transform.forward * GroundedRadius, transform.forward, GroundedRadius * 2, GroundLayers, QueryTriggerInteraction.Ignore);
+			return canWallRun && !Grounded && WallCling && !(OnRightWall && OnLeftWall) && !Physics.Raycast(ClimbSpherePosition - transform.forward * GroundedRadius, transform.forward, GroundedRadius * 2, GroundLayers, QueryTriggerInteraction.Ignore);
 		}
 
 		void WallRunMovement()
@@ -433,7 +434,7 @@ namespace StarterAssets
         {
             get
             {
-				return Climb && _input.move.y > 0;
+				return canClimb && Climb && _input.move.y > 0;
             }
         }
 		void ClimbMovement()
