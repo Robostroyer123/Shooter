@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class Portal : MonoBehaviour
 {
+    public Vector3 portalDirection = Vector3.back;
     public Transform reciever;
     public Transform Player;
+    Vector3 PlayerPos { get { return Player.GetComponent<Collider>().bounds.center; } } 
     bool playerIsOverlapping = false;
     // Start is called before the first frame update
     void Start()
@@ -19,8 +21,8 @@ public class Portal : MonoBehaviour
         if (reciever == null) return;
         if(playerIsOverlapping)
         {
-			Vector3 portalToPlayer = Player.position - transform.position;
-			float dotProduct = Vector3.Dot(transform.up, portalToPlayer);
+			Vector3 portalToPlayer = PlayerPos - transform.position;
+			float dotProduct = Vector3.Dot(transform.TransformDirection(portalDirection.normalized), portalToPlayer);
 
 			// If this is true: The player has moved across the portal
 			if (dotProduct < 0f)
@@ -32,7 +34,7 @@ public class Portal : MonoBehaviour
 				Player.Rotate(Vector3.up, rotationDiff);
 
 				Vector3 positionOffset = Quaternion.Euler(0f, rotationDiff, 0f) * portalToPlayer;
-                Player.position = positionOffset + reciever.position;
+                Player.position = positionOffset + reciever.position + Player.position - PlayerPos;
 
                 playerIsOverlapping = false;
             }
