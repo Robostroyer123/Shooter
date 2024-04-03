@@ -61,23 +61,27 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\DebugPrinter.cs" />
-    <Compile Include="Assets\Portal.cs" />
     <Compile Include="Assets\ParticleObjectKill.cs" />
+    <Compile Include="Assets\Core\MainCamera.cs" />
     <Compile Include="Assets\Health.cs" />
     <Compile Include="Assets\StarterAssets\Mobile\Scripts\VirtualInputs\UIVirtualTouchZone.cs" />
     <Compile Include="Assets\StarterAssets\Mobile\Scripts\VirtualInputs\UIVirtualButton.cs" />
     <Compile Include="Assets\TutorialInfo\Scripts\Readme.cs" />
     <Compile Include="Assets\Hitscan.cs" />
     <Compile Include="Assets\StarterAssets\Mobile\Scripts\VirtualInputs\UIVirtualJoystick.cs" />
+    <Compile Include="Assets\PortalBrackeys.cs" />
     <Compile Include="Assets\StarterAssets\FirstPersonController\Scripts\BasicRigidBodyPush.cs" />
     <Compile Include="Assets\TeamSetting.cs" />
+    <Compile Include="Assets\Core\Portal.cs" />
     <Compile Include="Assets\UMotionExamples\Miscellaneous\Scripts\ResetPosition.cs" />
     <Compile Include="Assets\shaders\MultiPassPassRendererFeature.cs" />
     <Compile Include="Assets\StarterAssets\Mobile\Scripts\CanvasInputs\UICanvasControllerInput.cs" />
     <Compile Include="Assets\ConeCastExtension.cs" />
+    <Compile Include="Assets\Core\PortalTraveller.cs" />
     <Compile Include="Assets\StarterAssets\ThirdPersonController\Scripts\ZoomCamera.cs" />
     <Compile Include="Assets\SceneSettings.cs" />
     <Compile Include="Assets\StarterAssets\Mobile\Scripts\Utilities\MobileDisableAutoSwitchControls.cs" />
+    <Compile Include="Assets\Core\CameraUtility.cs" />
     <Compile Include="Assets\StarterAssets\FirstPersonController\Scripts\FirstPersonController.cs" />
     <Compile Include="Assets\StarterAssets\InputSystem\StarterAssetsInputs.cs" />
     <Compile Include="Assets\StarterAssets\ThirdPersonController\Scripts\ThirdPersonController.cs" />
@@ -87,10 +91,12 @@
     <None Include="Assets\shaders\BotWGrass.shader" />
     <None Include="Assets\UMotionEditor\Shaders\UnlitLine.shader" />
     <None Include="Assets\UMotionEditor\Shaders\UnlitDashedLine.shader" />
+    <None Include="Assets\Core\Shaders\Portal.shader" />
     <None Include="Assets\shaders\Anime.shader" />
     <None Include="Assets\UMotionEditor\Shaders\CameraLit.shader" />
     <None Include="Assets\StarterAssets\license.txt" />
     <None Include="Assets\shaders\Lighting.hlsl" />
+    <None Include="Assets\Core\Shaders\Slice.shader" />
     <None Include="Assets\UMotionEditor\Shaders\VertexColorUnlit.shader" />
     <None Include="Assets\shaders\granulator fractal.shader" />
     <None Include="Assets\shaders\CustomLighting.hlsl" />
