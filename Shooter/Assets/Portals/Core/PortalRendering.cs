@@ -14,9 +14,13 @@ public class PortalRendering : MonoBehaviour {
         RenderPipelineManager.beginCameraRendering += OnBeginCameraRender;
     }
 
+    private void OnDisable()
+    {
+        RenderPipelineManager.beginCameraRendering -= OnBeginCameraRender;
+    }
+
     void OnBeginCameraRender(ScriptableRenderContext context, Camera camera)
     {
-        if (camera != Camera.main || !Application.isPlaying) return;
         for (int i = 0; i < portals.Length; i++)
         {
             portals[i].PrePortalRender();
