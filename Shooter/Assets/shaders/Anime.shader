@@ -14,6 +14,9 @@ Shader "Unlit/Anime"
         _BumpScale("BumpScale", Range(0, 1)) = 0
         _Outline_Colour("Outline Colour", Color) = (0, 0, 0, 0)
         _OutlineThickness("OutlineThickness", Float) = 0.015625
+        _SliceNormal("SliceNormal", Vector) = (0,0,0,0)
+        _SliceCentre("SliceCentre", Vector) = (0,0,0,0)
+        _SliceOffsetDst("SliceOffset", Float) = 0
         [HideInInspector]_CastShadows("_CastShadows", Float) = 1
         [HideInInspector]_Surface("_Surface", Float) = 0
         [HideInInspector]_Blend("_Blend", Float) = 2
