@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
 public class CameraMove : MonoBehaviour
@@ -11,10 +12,22 @@ public class CameraMove : MonoBehaviour
     public Quaternion TargetRotation { private set; get; }
     
     private Vector3 moveVector = Vector3.zero;
-    private float moveY = 0.0f;
+    private float elevation = 0.0f;
 
     private new Rigidbody rigidbody;
 
+    Vector3 move;
+    Vector2 look;
+
+    public void OnMove(InputAction.CallbackContext value)
+    {
+        move = value.ReadValue<Vector3>();   
+    }
+
+    public void OnLook(InputAction.CallbackContext value)
+    {
+        look = value.ReadValue<Vector2>();
+    }
     private void Awake()
     {
         rigidbody = GetComponent<Rigidbody>();
@@ -26,7 +39,7 @@ public class CameraMove : MonoBehaviour
     private void Update()
     {
         // Rotate the camera.
-        var rotation = new Vector2(-Input.GetAxis("Mouse Y"), Input.GetAxis("Mouse X"));
+        var rotation = new Vector2(look.y, look.x);
         var targetEuler = TargetRotation.eulerAngles + (Vector3)rotation * cameraSpeed;
         if(targetEuler.x > 180.0f)
         {
@@ -39,17 +52,17 @@ public class CameraMove : MonoBehaviour
             Time.deltaTime * 15.0f);
 
         // Move the camera.
-        float x = Input.GetAxis("Horizontal");
-        float z = Input.GetAxis("Vertical");
-        moveVector = new Vector3(x, 0.0f, z) * moveSpeed;
+        float x = move.x;
+        float z = move.y;
+        moveVector = new Vector3(x, 0.0f, z).normalized * moveSpeed;
 
-        moveY = Input.GetAxis("Elevation");
+        elevation = move.z;
     }
 
     private void FixedUpdate()
     {
         Vector3 newVelocity = transform.TransformDirection(moveVector);
-        newVelocity.y += moveY * moveSpeed;
+        newVelocity.y += elevation * moveSpeed;
         rigidbody.velocity = newVelocity;
     }
 

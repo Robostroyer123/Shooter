@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CameraMove))]
 public class PortalPlacement : MonoBehaviour
@@ -14,7 +15,25 @@ public class PortalPlacement : MonoBehaviour
     [SerializeField]
     private Crosshair crosshair;
 
+    [SerializeField]
+    private float distance = 250f;
+
     private CameraMove cameraMove;
+
+    public void OnShoot(InputAction.CallbackContext value)
+    {
+        if(value.started)
+        {
+            FirePortal(0, transform.position, transform.forward, distance);
+        }
+    }
+    public void OnShootOne(InputAction.CallbackContext value)
+    {
+        if (value.started)
+        {
+            FirePortal(1, transform.position, transform.forward, distance);
+        }
+    }
 
     private void Awake()
     {
@@ -23,14 +42,6 @@ public class PortalPlacement : MonoBehaviour
 
     private void Update()
     {
-        if(Input.GetButtonDown("Fire1"))
-        {
-            FirePortal(0, transform.position, transform.forward, 250.0f);
-        }
-        else if (Input.GetButtonDown("Fire2"))
-        {
-            FirePortal(1, transform.position, transform.forward, 250.0f);
-        }
     }
 
     private void FirePortal(int portalID, Vector3 pos, Vector3 dir, float distance)
@@ -90,7 +101,7 @@ public class PortalPlacement : MonoBehaviour
             // Attempt to place the portal.
             bool wasPlaced = portals.Portals[portalID].PlacePortal(hit.collider, hit.point, portalRotation);
 
-            if(wasPlaced)
+            if(crosshair != null && wasPlaced)
             {
                 crosshair.SetPortalPlaced(portalID, true);
             }
