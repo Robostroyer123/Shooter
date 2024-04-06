@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(MeshFilter))]
-[RequireComponent(typeof(MeshRenderer))]
-[RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(Collider))]
 public class PortalableObject : MonoBehaviour
 {
@@ -20,19 +17,32 @@ public class PortalableObject : MonoBehaviour
 
     private static readonly Quaternion halfTurn = Quaternion.Euler(0.0f, 180.0f, 0.0f);
 
-    protected virtual void Awake()
+    MeshRenderer m_Renderer;
+    MeshFilter m_Filter;
+
+    public int InPortalCount { get { return inPortalCount; } }
+
+    protected virtual void Start()
     {
+        if(!TryGetComponent(out m_Renderer))
+        {
+            m_Renderer = GetComponentInChildren<MeshRenderer>();
+        }
+        if (!TryGetComponent(out m_Filter))
+        {
+            m_Filter = GetComponentInChildren<MeshFilter>();
+        }
         cloneObject = new GameObject();
         cloneObject.SetActive(false);
         var meshFilter = cloneObject.AddComponent<MeshFilter>();
         var meshRenderer = cloneObject.AddComponent<MeshRenderer>();
 
-        meshFilter.mesh = GetComponent<MeshFilter>().mesh;
-        meshRenderer.materials = GetComponent<MeshRenderer>().materials;
+        meshFilter.mesh = m_Filter.mesh;
+        meshRenderer.materials = m_Renderer.materials;
         cloneObject.transform.localScale = transform.localScale;
 
-        rigidbody = GetComponent<Rigidbody>();
-        collider = GetComponent<Collider>();
+        TryGetComponent(out rigidbody);
+        TryGetComponent(out collider);
     }
 
     private void LateUpdate()
@@ -100,11 +110,20 @@ public class PortalableObject : MonoBehaviour
         Quaternion relativeRot = Quaternion.Inverse(inTransform.rotation) * transform.rotation;
         relativeRot = halfTurn * relativeRot;
         transform.rotation = outTransform.rotation * relativeRot;
+        if (TryGetComponent(out StarterAssets.FirstPersonController first))
+        {
+            transform.localEulerAngles = Vector3.up * transform.localEulerAngles.y;
+            //first.InvertVerticalVelocity();
+        }
 
-        // Update velocity of rigidbody.
-        Vector3 relativeVel = inTransform.InverseTransformDirection(rigidbody.velocity);
-        relativeVel = halfTurn * relativeVel;
-        rigidbody.velocity = outTransform.TransformDirection(relativeVel);
+        if (rigidbody != null)
+        {
+            // Update velocity of rigidbody.
+            Vector3 relativeVel = inTransform.InverseTransformDirection(rigidbody.velocity);
+            relativeVel = halfTurn * relativeVel;
+            rigidbody.velocity = outTransform.TransformDirection(relativeVel);
+        }
+        //Physics.SyncTransforms();
 
         // Swap portal references.
         var tmp = inPortal;

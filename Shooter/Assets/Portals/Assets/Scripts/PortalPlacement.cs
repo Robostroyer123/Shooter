@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(CameraMove))]
 public class PortalPlacement : MonoBehaviour
 {
     [SerializeField]
@@ -18,45 +17,48 @@ public class PortalPlacement : MonoBehaviour
     [SerializeField]
     private float distance = 250f;
 
-    private CameraMove cameraMove;
+    [SerializeField]
+    private Transform placementPos;
+
+    private void Start()
+    {
+        if (placementPos == null) placementPos = transform;
+    }
 
     public void OnShoot(InputAction.CallbackContext value)
     {
         if(value.started)
         {
-            FirePortal(0, transform.position, transform.forward, distance);
+            SetPortalCollider(1);
+            FirePortal(0, placementPos.position, placementPos.forward, distance);
         }
     }
     public void OnShootOne(InputAction.CallbackContext value)
     {
         if (value.started)
         {
-            FirePortal(1, transform.position, transform.forward, distance);
+            SetPortalCollider(0);
+            FirePortal(1, placementPos.position, placementPos.forward, distance);
         }
     }
 
-    private void Awake()
+    void SetPortalCollider(int portalID)
     {
-        cameraMove = GetComponent<CameraMove>();
+        portals.Portals[portalID].GetComponent<Collider>().enabled = true;
     }
 
-    private void Update()
-    {
-    }
 
     private void FirePortal(int portalID, Vector3 pos, Vector3 dir, float distance)
     {
-        RaycastHit hit;
-        Physics.Raycast(pos, dir, out hit, distance, layerMask);
+        Physics.Raycast(pos, dir, out RaycastHit hit, distance, layerMask);
 
         if(hit.collider != null)
         {
             // If we shoot a portal, recursively fire through the portal.
-            if (hit.collider.tag == "Portal")
+            if (hit.collider.transform.CompareTag("Portal"))
             {
-                var inPortal = hit.collider.GetComponent<Portal>();
-
-                if(inPortal == null)
+                
+                if (!hit.collider.TryGetComponent<Portal>(out var inPortal))
                 {
                     return;
                 }
@@ -73,15 +75,14 @@ public class PortalPlacement : MonoBehaviour
                 relativeDir = Quaternion.Euler(0.0f, 180.0f, 0.0f) * relativeDir;
                 dir = outPortal.transform.TransformDirection(relativeDir);
 
-                distance -= Vector3.Distance(pos, hit.point);
+                distance -= hit.distance;
 
                 FirePortal(portalID, pos, dir, distance);
-
                 return;
             }
 
             // Orient the portal according to camera look direction and surface direction.
-            var cameraRotation = cameraMove.TargetRotation;
+            var cameraRotation = Camera.main.transform.rotation;
             var portalRight = cameraRotation * Vector3.right;
             
             if(Mathf.Abs(portalRight.x) >= Mathf.Abs(portalRight.z))
@@ -92,11 +93,13 @@ public class PortalPlacement : MonoBehaviour
             {
                 portalRight = (portalRight.z >= 0) ? Vector3.forward : -Vector3.forward;
             }
-
+            
             var portalForward = -hit.normal;
             var portalUp = -Vector3.Cross(portalRight, portalForward);
-
+            
             var portalRotation = Quaternion.LookRotation(portalForward, portalUp);
+
+            //var portalRotation = Quaternion.LookRotation(Vector3.Project(Camera.main.transform.forward, hit.normal));
             
             // Attempt to place the portal.
             bool wasPlaced = portals.Portals[portalID].PlacePortal(hit.collider, hit.point, portalRotation);

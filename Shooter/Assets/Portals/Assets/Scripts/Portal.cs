@@ -37,14 +37,15 @@ public class Portal : MonoBehaviour
     private void Start()
     {
         outlineRenderer.material.SetColor("_OutlineColour", PortalColour);
-        
+
         gameObject.SetActive(false);
+
     }
 
     private void LateUpdate()
     {
         Renderer.enabled = OtherPortal.IsPlaced;
-        if(!OtherPortal.isActiveAndEnabled || !OtherPortal.IsPlaced ) { return; }
+        if (!OtherPortal.IsPlaced ) { return; }
         for (int i = 0; i < portalObjects.Count; ++i)
         {
             Vector3 objPos = transform.InverseTransformPoint(portalObjects[i].transform.position);
@@ -94,6 +95,10 @@ public class Portal : MonoBehaviour
 
             gameObject.SetActive(true);
             IsPlaced = true;
+            if (!OtherPortal.IsPlaced)
+            {
+                collider.enabled = false;
+            }
             return true;
         }
 

@@ -54,15 +54,14 @@ public class CameraMove : MonoBehaviour
         // Move the camera.
         float x = move.x;
         float z = move.y;
-        moveVector = new Vector3(x, 0.0f, z).normalized * moveSpeed;
-
         elevation = move.z;
+        moveVector = new Vector3(x, elevation, z).normalized * moveSpeed;
+
     }
 
     private void FixedUpdate()
     {
         Vector3 newVelocity = transform.TransformDirection(moveVector);
-        newVelocity.y += elevation * moveSpeed;
         rigidbody.velocity = newVelocity;
     }
 

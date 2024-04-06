@@ -6,9 +6,9 @@ public class PlayerController : PortalableObject
 {
     private CameraMove cameraMove;
 
-    protected override void Awake()
+    protected override void Start()
     {
-        base.Awake();
+        base.Start();
 
         cameraMove = GetComponent<CameraMove>();
     }

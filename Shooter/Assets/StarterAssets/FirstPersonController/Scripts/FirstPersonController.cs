@@ -344,7 +344,7 @@ namespace StarterAssets
 				_fallTimeoutDelta = FallTimeout;
 
 				// stop our velocity dropping infinitely when grounded
-				if (_controller.isGrounded && _verticalVelocity < 0.0f)
+				if (_controller.isGrounded && GetComponent<PortalableObject>().InPortalCount <= 0 && _verticalVelocity < 0.0f)
 				{
 					_verticalVelocity = -2f;
 				}
@@ -453,6 +453,11 @@ namespace StarterAssets
 			Camera.main.GetComponent<Cinemachine.CinemachineBrain>().ActiveVirtualCamera.VirtualCameraGameObject.GetComponent<Cinemachine.CinemachineVirtualCamera>().m_Lens.Dutch = dutch;
 
 		}
+
+		public void InvertVerticalVelocity()
+        {
+			_verticalVelocity *= -1;
+        }
         public void Jump()
         {
             // the square root of H * -2 * G = how much velocity needed to reach desired height
