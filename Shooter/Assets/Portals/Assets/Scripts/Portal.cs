@@ -25,13 +25,13 @@ public class Portal : MonoBehaviour
     private Collider wallCollider;
 
     // Components.
-    public Renderer Renderer { get; private set; }
+    public Renderer Renderer;
     private new BoxCollider collider;
 
-    private void Awake()
+    private void OnEnable()
     {
         collider = GetComponent<BoxCollider>();
-        Renderer = GetComponent<Renderer>();
+        if(Renderer == null) Renderer = GetComponent<Renderer>();
     }
 
     private void Start()
