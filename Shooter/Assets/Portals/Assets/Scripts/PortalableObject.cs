@@ -113,7 +113,10 @@ public class PortalableObject : MonoBehaviour
         if (TryGetComponent(out StarterAssets.FirstPersonController first))
         {
             transform.localEulerAngles = Vector3.up * transform.localEulerAngles.y;
-            //first.InvertVerticalVelocity();
+            if(Mathf.Abs(inPortal.transform.localEulerAngles.x) == 90 && inPortal.transform.forward == inPortal.OtherPortal.transform.forward)
+            {
+                first.InvertVerticalVelocity();
+            }
         }
 
         if (rigidbody != null)
@@ -122,6 +125,13 @@ public class PortalableObject : MonoBehaviour
             Vector3 relativeVel = inTransform.InverseTransformDirection(rigidbody.velocity);
             relativeVel = halfTurn * relativeVel;
             rigidbody.velocity = outTransform.TransformDirection(relativeVel);
+        }
+        if(TryGetComponent(out CharacterController controller))
+        {
+            Vector3 relativeVel = inTransform.InverseTransformDirection(controller.velocity);
+            relativeVel = halfTurn * relativeVel;
+            //controller.SimpleMove(Vector3.zero);
+            //controller.Move(outTransform.TransformDirection(relativeVel) *Time.deltaTime);
         }
         //Physics.SyncTransforms();
 

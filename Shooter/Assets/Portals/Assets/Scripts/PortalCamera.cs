@@ -52,6 +52,7 @@ public class PortalCamera : MonoBehaviour
         if (portals[0].Renderer.isVisible)
         {
             portalCamera.targetTexture = tempTexture1;
+            //portals[0].ProtectScreenFromClipping(Camera.main.transform.position);
             for (int i = iterations - 1; i >= 0; --i)
             {
                 RenderCamera(portals[0], portals[1], i, SRC);
@@ -61,6 +62,7 @@ public class PortalCamera : MonoBehaviour
         if(portals[1].Renderer.isVisible)
         {
             portalCamera.targetTexture = tempTexture2;
+            //portals[1].ProtectScreenFromClipping(Camera.main.transform.position);
             for (int i = iterations - 1; i >= 0; --i)
             {
                 RenderCamera(portals[1], portals[0], i, SRC);
@@ -102,4 +104,5 @@ public class PortalCamera : MonoBehaviour
         // Render the camera to its render target.
         UniversalRenderPipeline.RenderSingleCamera(SRC, portalCamera);
     }
+
 }

@@ -40,6 +40,8 @@ public class Portal : MonoBehaviour
 
         gameObject.SetActive(false);
 
+        collider.enabled = false;
+
     }
 
     private void LateUpdate()
@@ -83,6 +85,7 @@ public class Portal : MonoBehaviour
         testTransform.position = pos;
         testTransform.rotation = rot;
         testTransform.position -= testTransform.forward * 0.001f;
+        collider.enabled = true;
 
         FixOverhangs();
         FixIntersects();
@@ -126,7 +129,6 @@ public class Portal : MonoBehaviour
 
         for(int i = 0; i < 4; ++i)
         {
-            RaycastHit hit;
             Vector3 raycastPos = testTransform.TransformPoint(testPoints[i]);
             Vector3 raycastDir = testTransform.TransformDirection(testDirs[i]);
 
@@ -134,7 +136,7 @@ public class Portal : MonoBehaviour
             {
                 break;
             }
-            else if(Physics.Raycast(raycastPos, raycastDir, out hit, 2.1f, placementMask))
+            else if(Physics.Raycast(raycastPos, raycastDir, out RaycastHit hit, 2.1f, placementMask))
             {
                 var offset = hit.point - raycastPos;
                 testTransform.Translate(offset, Space.World);
@@ -168,6 +170,21 @@ public class Portal : MonoBehaviour
                 testTransform.Translate(newOffset, Space.World);
             }
         }
+    }
+
+    // Sets the thickness of the portal screen so as not to clip with camera near plane when player goes through
+    public float ProtectScreenFromClipping(Vector3 viewPoint)
+    {
+        float halfHeight = Camera.main.nearClipPlane * Mathf.Tan(Camera.main.fieldOfView * 0.5f * Mathf.Deg2Rad);
+        float halfWidth = halfHeight * Camera.main.aspect;
+        float dstToNearClipPlaneCorner = new Vector3(halfWidth, halfHeight, Camera.main.nearClipPlane).magnitude;
+        float screenThickness = dstToNearClipPlaneCorner;
+
+        Transform screenT = Renderer.transform;
+        bool camFacingSameDirAsPortal = Vector3.Dot(transform.forward, transform.position - viewPoint) < 0;
+        screenT.localScale = new Vector3(screenT.localScale.x, screenT.localScale.y, screenThickness);
+        screenT.localPosition = ((camFacingSameDirAsPortal) ? 0.5f : -0.5f) * screenThickness * Vector3.forward;
+        return screenThickness;
     }
 
     // Once positioning has taken place, ensure the portal isn't intersecting anything.
@@ -219,5 +236,7 @@ public class Portal : MonoBehaviour
     {
         gameObject.SetActive(false);
         IsPlaced = false;
+        collider.enabled = false;
+        if(OtherPortal.IsPlaced) OtherPortal.collider.enabled = false;
     }
 }

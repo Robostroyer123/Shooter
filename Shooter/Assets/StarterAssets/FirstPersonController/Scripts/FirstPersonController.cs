@@ -77,6 +77,8 @@ namespace StarterAssets
 		[Tooltip("How far in degrees can you move the camera down")]
 		public float BottomClamp = -90.0f;
 
+		public Vector3 PortalVelocity { get; set; }
+
 		// cinemachine
 		private float _cinemachineTargetPitch;
 

@@ -157,6 +157,8 @@ GameObject:
   - component: {fileID: 7854078246227782986}
   - component: {fileID: 8051880294905494177}
   - component: {fileID: 1014845929238577697}
+  - component: {fileID: 36038478490933846}
+  - component: {fileID: 6224874021267824092}
   m_Layer: 3
   m_Name: PlayerCapsule
   m_TagString: Player
@@ -245,6 +247,8 @@ MonoBehaviour:
   GroundLayers:
     serializedVersion: 2
     m_Bits: 1
+  canWallRun: 0
+  canClimb: 0
   wallRunTime: 1.85
   wallRunDutch: 15
   wallRunEndVerticalVelocity: -3
@@ -431,8 +435,8 @@ MonoBehaviour:
     m_ActionName: Player/Zoom[/Mouse/rightButton]
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5420857361349278248}
-        m_TargetAssemblyTypeName: StarterAssets.StarterAssetsInputs, Assembly-CSharp
+      - m_Target: {fileID: 36038478490933846}
+        m_TargetAssemblyTypeName: PortalPlacement, Assembly-CSharp
         m_MethodName: OnShoot
         m_Mode: 0
         m_Arguments:
@@ -443,20 +447,24 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: DebugPrinter, Assembly-CSharp
-        m_MethodName: Print
-        m_Mode: 5
+    m_ActionId: 0592f90a-c59b-4659-9f31-c1206c38cea4
+    m_ActionName: Player/Shoot[/Keyboard/e]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 36038478490933846}
+        m_TargetAssemblyTypeName: PortalPlacement, Assembly-CSharp
+        m_MethodName: OnShootOne
+        m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: Fire
+          m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-    m_ActionId: 0592f90a-c59b-4659-9f31-c1206c38cea4
-    m_ActionName: Player/Shoot[/Keyboard/e]
+    m_ActionId: 68f75e59-920d-43c6-bd84-77f08e5ca43e
+    m_ActionName: Player/SubShoot[/Mouse/rightButton]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -495,7 +503,6 @@ MonoBehaviour:
   layerMask:
     serializedVersion: 2
     m_Bits: 1
-  hitTag: 
   hitscanOrigin: {fileID: 0}
   distance: 100
   firingTime: 0.2
@@ -525,6 +532,37 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   team: 1
+--- !u!114 &36038478490933846
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8616685848737228372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4f8ba086347dad4cb1bbbcf835540b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  portals: {fileID: 0}
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 129
+  crosshair: {fileID: 0}
+  distance: 250
+  placementPos: {fileID: 0}
+--- !u!114 &6224874021267824092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8616685848737228372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9581fdc03f0e386459a466474b74272c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &370620244272547105
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -46,6 +46,7 @@ Material:
     - _Emission: 0
     - _Falloff_Amount: 0
     - _OcclusionStrength: 0
+    - _OutlineThickness: 0.015625
     m_Colors:
     - _BaseColor: {r: 1, g: 0.5985916, b: 0, a: 1}
     - _Color: {r: 1, g: 0.5985916, b: 0, a: 1}

@@ -20,6 +20,8 @@ public class PortalPlacement : MonoBehaviour
     [SerializeField]
     private Transform placementPos;
 
+    [SerializeField]
+    private bool openAndClosePortals = true;
     private void Start()
     {
         if (placementPos == null) placementPos = transform;
@@ -29,16 +31,30 @@ public class PortalPlacement : MonoBehaviour
     {
         if(value.started)
         {
-            SetPortalCollider(1);
-            FirePortal(0, placementPos.position, placementPos.forward, distance);
+            if (openAndClosePortals && portals.Portals[0].IsPlaced)
+            {
+                portals.Portals[0].RemovePortal();
+            }
+            else
+            {
+                SetPortalCollider(1);
+                FirePortal(0, placementPos.position, placementPos.forward, distance);
+            }
         }
     }
     public void OnShootOne(InputAction.CallbackContext value)
     {
         if (value.started)
         {
-            SetPortalCollider(0);
-            FirePortal(1, placementPos.position, placementPos.forward, distance);
+            if(openAndClosePortals && portals.Portals[1].IsPlaced)
+            {
+                portals.Portals[1].RemovePortal();
+            }
+            else
+            {
+                SetPortalCollider(0);
+                FirePortal(1, placementPos.position, placementPos.forward, distance);
+            }
         }
     }
 
