@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: MangaFilter
+  m_Name: MangaFilterMat
   m_Shader: {fileID: -6465566751694194690, guid: dda786233dfeeca4fa1298a91fd7b7db,
     type: 3}
   m_Parent: {fileID: 0}
@@ -108,9 +108,10 @@ Material:
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _DstBlendAlpha: 0
+    - _Edge: 0.0626
     - _EnvironmentReflections: 1
     - _Fullscreen_DepthTest: 4
-    - _Fullscreen_DepthWrite: 1
+    - _Fullscreen_DepthWrite: 0
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
@@ -132,6 +133,7 @@ Material:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _LightColor: {r: 1, g: 1, b: 1, a: 1}
     - _ShadowColor: {r: 0.06666667, g: 0.06666667, b: 0.26666668, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
   m_BuildTextureStacks: []

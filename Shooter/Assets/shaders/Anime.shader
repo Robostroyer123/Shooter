@@ -12,22 +12,20 @@ Shader "Unlit/Anime"
         [HDR]_Emission("Emission", Color) = (2, 2, 2, 1)
         [Normal][NoScaleOffset]_BumpMap("BumpMap", 2D) = "bump" {}
         _BumpScale("BumpScale", Range(0, 1)) = 0
+        [ToggleUI]_TileableTexture("TileableTexture", Float) = 0
         _Outline_Colour("Outline Colour", Color) = (0, 0, 0, 0)
         _OutlineThickness("OutlineThickness", Float) = 0.015625
-        _SliceNormal("SliceNormal", Vector) = (0,0,0,0)
-        _SliceCentre("SliceCentre", Vector) = (0,0,0,0)
-        _SliceOffsetDst("SliceOffset", Float) = 0
         [HideInInspector]_CastShadows("_CastShadows", Float) = 1
         [HideInInspector]_Surface("_Surface", Float) = 0
         [HideInInspector]_Blend("_Blend", Float) = 2
-        [HideInInspector]_AlphaClip("_AlphaClip", Float) = 0
+        [HideInInspector]_AlphaClip("_AlphaClip", Float) = 1
         [HideInInspector]_SrcBlend("_SrcBlend", Float) = 1
         [HideInInspector]_DstBlend("_DstBlend", Float) = 0
         [HideInInspector][ToggleUI]_ZWrite("_ZWrite", Float) = 1
         [HideInInspector]_ZWriteControl("_ZWriteControl", Float) = 0
         [HideInInspector]_ZTest("_ZTest", Float) = 4
         [HideInInspector]_Cull("_Cull", Float) = 2
-        [HideInInspector]_AlphaToMask("_AlphaToMask", Float) = 0
+        [HideInInspector]_AlphaToMask("_AlphaToMask", Float) = 1
         [HideInInspector]_QueueOffset("_QueueOffset", Float) = 0
         [HideInInspector]_QueueControl("_QueueControl", Float) = -1
         [HideInInspector][NoScaleOffset]unity_Lightmaps("unity_Lightmaps", 2DArray) = "" {}
@@ -41,7 +39,7 @@ Shader "Unlit/Anime"
             "RenderPipeline"="UniversalPipeline"
             "RenderType"="Opaque"
             "UniversalMaterialType" = "Unlit"
-            "Queue"="Geometry"
+            "Queue"="AlphaTest"
             "DisableBatching"="False"
             "ShaderGraphShader"="true"
             "ShaderGraphTargetId"="UniversalUnlitSubTarget"
@@ -258,6 +256,7 @@ Shader "Unlit/Anime"
         float4 _Emission;
         float4 _BumpMap_TexelSize;
         float _BumpScale;
+        float _TileableTexture;
         CBUFFER_END
         
         
@@ -289,6 +288,16 @@ Shader "Unlit/Anime"
         #endif
         
         // Graph Functions
+        
+        void Unity_Branch_float2(float Predicate, float2 True, float2 False, out float2 Out)
+        {
+            Out = Predicate ? True : False;
+        }
+        
+        void Unity_TilingAndOffset_float(float2 UV, float2 Tiling, float2 Offset, out float2 Out)
+        {
+            Out = UV * Tiling + Offset;
+        }
         
         void Unity_Comparison_Equal_float(float A, float B, out float Out)
         {
@@ -338,14 +347,13 @@ Shader "Unlit/Anime"
         struct Bindings_NormalsWithNormalMap_c74b7548c3364bb4e83c796ef9a61f5a_float
         {
         float3 WorldSpaceNormal;
-        half4 uv0;
         };
         
-        void SG_NormalsWithNormalMap_c74b7548c3364bb4e83c796ef9a61f5a_float(float _BumpScale, UnityTexture2D _BumpMap, Bindings_NormalsWithNormalMap_c74b7548c3364bb4e83c796ef9a61f5a_float IN, out float3 OutVector3_1)
+        void SG_NormalsWithNormalMap_c74b7548c3364bb4e83c796ef9a61f5a_float(float _BumpScale, UnityTexture2D _BumpMap, float2 _UV, Bindings_NormalsWithNormalMap_c74b7548c3364bb4e83c796ef9a61f5a_float IN, out float3 OutVector3_1)
         {
         UnityTexture2D _Property_0651d1d4c972486292e8d2c55487c2bf_Out_0_Texture2D = _BumpMap;
-        float4 _UV_e48d2c952e05402b923cb5bf4b531840_Out_0_Vector4 = IN.uv0;
-        float4 _SampleTexture2D_c5d1308cc686492aa7caabc39cabd19a_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_0651d1d4c972486292e8d2c55487c2bf_Out_0_Texture2D.tex, _Property_0651d1d4c972486292e8d2c55487c2bf_Out_0_Texture2D.samplerstate, _Property_0651d1d4c972486292e8d2c55487c2bf_Out_0_Texture2D.GetTransformedUV((_UV_e48d2c952e05402b923cb5bf4b531840_Out_0_Vector4.xy)) );
+        float2 _Property_df98ab5b327f41849623711d2a0f4cea_Out_0_Vector2 = _UV;
+        float4 _SampleTexture2D_c5d1308cc686492aa7caabc39cabd19a_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_0651d1d4c972486292e8d2c55487c2bf_Out_0_Texture2D.tex, _Property_0651d1d4c972486292e8d2c55487c2bf_Out_0_Texture2D.samplerstate, _Property_0651d1d4c972486292e8d2c55487c2bf_Out_0_Texture2D.GetTransformedUV(_Property_df98ab5b327f41849623711d2a0f4cea_Out_0_Vector2) );
         _SampleTexture2D_c5d1308cc686492aa7caabc39cabd19a_RGBA_0_Vector4.rgb = UnpackNormal(_SampleTexture2D_c5d1308cc686492aa7caabc39cabd19a_RGBA_0_Vector4);
         float _SampleTexture2D_c5d1308cc686492aa7caabc39cabd19a_R_4_Float = _SampleTexture2D_c5d1308cc686492aa7caabc39cabd19a_RGBA_0_Vector4.r;
         float _SampleTexture2D_c5d1308cc686492aa7caabc39cabd19a_G_5_Float = _SampleTexture2D_c5d1308cc686492aa7caabc39cabd19a_RGBA_0_Vector4.g;
@@ -455,7 +463,17 @@ Shader "Unlit/Anime"
             SurfaceDescription surface = (SurfaceDescription)0;
             float4 _Property_e1161674d21445da80a94687d98739f4_Out_0_Vector4 = _ShadowColour;
             UnityTexture2D _Property_dd7f4a6742ac47d98f89f8a26d6220ef_Out_0_Texture2D = UnityBuildTexture2DStructNoScale(_ShadowMap);
-            float4 _SampleTexture2D_1c8e87e94a2848e2a1e557e907f7aaa5_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_dd7f4a6742ac47d98f89f8a26d6220ef_Out_0_Texture2D.tex, _Property_dd7f4a6742ac47d98f89f8a26d6220ef_Out_0_Texture2D.samplerstate, _Property_dd7f4a6742ac47d98f89f8a26d6220ef_Out_0_Texture2D.GetTransformedUV(IN.uv0.xy) );
+            float _Property_a9141355fdb34bec95b894e4d8018ed4_Out_0_Boolean = _TileableTexture;
+            float _Split_c683bce1946f4280b73440235e358c65_R_1_Float = (SHADERGRAPH_RENDERER_BOUNDS_MAX - SHADERGRAPH_RENDERER_BOUNDS_MIN)[0];
+            float _Split_c683bce1946f4280b73440235e358c65_G_2_Float = (SHADERGRAPH_RENDERER_BOUNDS_MAX - SHADERGRAPH_RENDERER_BOUNDS_MIN)[1];
+            float _Split_c683bce1946f4280b73440235e358c65_B_3_Float = (SHADERGRAPH_RENDERER_BOUNDS_MAX - SHADERGRAPH_RENDERER_BOUNDS_MIN)[2];
+            float _Split_c683bce1946f4280b73440235e358c65_A_4_Float = 0;
+            float2 _Vector2_55298d2e21e74f65bd91483b1980c02f_Out_0_Vector2 = float2(_Split_c683bce1946f4280b73440235e358c65_R_1_Float, _Split_c683bce1946f4280b73440235e358c65_B_3_Float);
+            float2 _Branch_83fbacdfe98d4fddb4feb1c4b06e37eb_Out_3_Vector2;
+            Unity_Branch_float2(_Property_a9141355fdb34bec95b894e4d8018ed4_Out_0_Boolean, _Vector2_55298d2e21e74f65bd91483b1980c02f_Out_0_Vector2, float2(1, 1), _Branch_83fbacdfe98d4fddb4feb1c4b06e37eb_Out_3_Vector2);
+            float2 _TilingAndOffset_1abc2d20417c4993aecc2ba964288e6a_Out_3_Vector2;
+            Unity_TilingAndOffset_float(IN.uv0.xy, _Branch_83fbacdfe98d4fddb4feb1c4b06e37eb_Out_3_Vector2, float2 (0, 0), _TilingAndOffset_1abc2d20417c4993aecc2ba964288e6a_Out_3_Vector2);
+            float4 _SampleTexture2D_1c8e87e94a2848e2a1e557e907f7aaa5_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_dd7f4a6742ac47d98f89f8a26d6220ef_Out_0_Texture2D.tex, _Property_dd7f4a6742ac47d98f89f8a26d6220ef_Out_0_Texture2D.samplerstate, _Property_dd7f4a6742ac47d98f89f8a26d6220ef_Out_0_Texture2D.GetTransformedUV(_TilingAndOffset_1abc2d20417c4993aecc2ba964288e6a_Out_3_Vector2) );
             float _SampleTexture2D_1c8e87e94a2848e2a1e557e907f7aaa5_R_4_Float = _SampleTexture2D_1c8e87e94a2848e2a1e557e907f7aaa5_RGBA_0_Vector4.r;
             float _SampleTexture2D_1c8e87e94a2848e2a1e557e907f7aaa5_G_5_Float = _SampleTexture2D_1c8e87e94a2848e2a1e557e907f7aaa5_RGBA_0_Vector4.g;
             float _SampleTexture2D_1c8e87e94a2848e2a1e557e907f7aaa5_B_6_Float = _SampleTexture2D_1c8e87e94a2848e2a1e557e907f7aaa5_RGBA_0_Vector4.b;
@@ -464,7 +482,7 @@ Shader "Unlit/Anime"
             float _Comparison_04622d25d50d4a2686463e0eecd65b7e_Out_2_Boolean;
             Unity_Comparison_Equal_float((_SampleTexture2D_1c8e87e94a2848e2a1e557e907f7aaa5_RGBA_0_Vector4).x, (Color_9e86cbdbc1be45109aa1cdddb29a660a).x, _Comparison_04622d25d50d4a2686463e0eecd65b7e_Out_2_Boolean);
             UnityTexture2D _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D = UnityBuildTexture2DStructNoScale(_BaseMap);
-            float4 _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.tex, _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.samplerstate, _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.GetTransformedUV(IN.uv0.xy) );
+            float4 _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.tex, _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.samplerstate, _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.GetTransformedUV(_TilingAndOffset_1abc2d20417c4993aecc2ba964288e6a_Out_3_Vector2) );
             float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_R_4_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.r;
             float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_G_5_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.g;
             float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_B_6_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.b;
@@ -491,9 +509,8 @@ Shader "Unlit/Anime"
             UnityTexture2D _Property_18db013475824cdf908febb8e5a55760_Out_0_Texture2D = UnityBuildTexture2DStructNoScale(_BumpMap);
             Bindings_NormalsWithNormalMap_c74b7548c3364bb4e83c796ef9a61f5a_float _NormalsWithNormalMap_1c717af811364118811418afd43d1ded;
             _NormalsWithNormalMap_1c717af811364118811418afd43d1ded.WorldSpaceNormal = IN.WorldSpaceNormal;
-            _NormalsWithNormalMap_1c717af811364118811418afd43d1ded.uv0 = IN.uv0;
             float3 _NormalsWithNormalMap_1c717af811364118811418afd43d1ded_OutVector3_1_Vector3;
-            SG_NormalsWithNormalMap_c74b7548c3364bb4e83c796ef9a61f5a_float(_Property_0576665307b745fa9087dad740d66048_Out_0_Float, _Property_18db013475824cdf908febb8e5a55760_Out_0_Texture2D, _NormalsWithNormalMap_1c717af811364118811418afd43d1ded, _NormalsWithNormalMap_1c717af811364118811418afd43d1ded_OutVector3_1_Vector3);
+            SG_NormalsWithNormalMap_c74b7548c3364bb4e83c796ef9a61f5a_float(_Property_0576665307b745fa9087dad740d66048_Out_0_Float, _Property_18db013475824cdf908febb8e5a55760_Out_0_Texture2D, _TilingAndOffset_1abc2d20417c4993aecc2ba964288e6a_Out_3_Vector2, _NormalsWithNormalMap_1c717af811364118811418afd43d1ded, _NormalsWithNormalMap_1c717af811364118811418afd43d1ded_OutVector3_1_Vector3);
             Bindings_GetMainLight_bf0598fe778624e4cbe47b8dc2e94161_half _GetMainLight_c415046b46b1405b89882a5dcb35bd3c;
             _GetMainLight_c415046b46b1405b89882a5dcb35bd3c.AbsoluteWorldSpacePosition = IN.AbsoluteWorldSpacePosition;
             half3 _GetMainLight_c415046b46b1405b89882a5dcb35bd3c_Direction_1_Vector3;
@@ -519,7 +536,7 @@ Shader "Unlit/Anime"
             float4 _Multiply_669960a70b714115997afe26c98d46fb_Out_2_Vector4;
             Unity_Multiply_float4_float4(_Lerp_16ebefcf70bd4274ac29f558bb8b8edd_Out_3_Vector4, _Multiply_b61d9b67585d43f4aeff8c7139c82707_Out_2_Vector4, _Multiply_669960a70b714115997afe26c98d46fb_Out_2_Vector4);
             UnityTexture2D _Property_d32ac20567a14f7cbef95bed5b24602d_Out_0_Texture2D = UnityBuildTexture2DStructNoScale(_DetailMap);
-            float4 _SampleTexture2D_76ba5cb604374b2c83aa8894f3b457f8_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_d32ac20567a14f7cbef95bed5b24602d_Out_0_Texture2D.tex, _Property_d32ac20567a14f7cbef95bed5b24602d_Out_0_Texture2D.samplerstate, _Property_d32ac20567a14f7cbef95bed5b24602d_Out_0_Texture2D.GetTransformedUV(IN.uv0.xy) );
+            float4 _SampleTexture2D_76ba5cb604374b2c83aa8894f3b457f8_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_d32ac20567a14f7cbef95bed5b24602d_Out_0_Texture2D.tex, _Property_d32ac20567a14f7cbef95bed5b24602d_Out_0_Texture2D.samplerstate, _Property_d32ac20567a14f7cbef95bed5b24602d_Out_0_Texture2D.GetTransformedUV(_TilingAndOffset_1abc2d20417c4993aecc2ba964288e6a_Out_3_Vector2) );
             float _SampleTexture2D_76ba5cb604374b2c83aa8894f3b457f8_R_4_Float = _SampleTexture2D_76ba5cb604374b2c83aa8894f3b457f8_RGBA_0_Vector4.r;
             float _SampleTexture2D_76ba5cb604374b2c83aa8894f3b457f8_G_5_Float = _SampleTexture2D_76ba5cb604374b2c83aa8894f3b457f8_RGBA_0_Vector4.g;
             float _SampleTexture2D_76ba5cb604374b2c83aa8894f3b457f8_B_6_Float = _SampleTexture2D_76ba5cb604374b2c83aa8894f3b457f8_RGBA_0_Vector4.b;
@@ -527,7 +544,7 @@ Shader "Unlit/Anime"
             float4 _Multiply_3f5187371efa4c309ce253c19be6b91a_Out_2_Vector4;
             Unity_Multiply_float4_float4(_Multiply_669960a70b714115997afe26c98d46fb_Out_2_Vector4, _SampleTexture2D_76ba5cb604374b2c83aa8894f3b457f8_RGBA_0_Vector4, _Multiply_3f5187371efa4c309ce253c19be6b91a_Out_2_Vector4);
             UnityTexture2D _Property_33fbd3c76e544f0cb820b9c7e9528e81_Out_0_Texture2D = UnityBuildTexture2DStructNoScale(_EmissionMap);
-            float4 _SampleTexture2D_f3e95659e9514567a242a7b33c6c9989_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_33fbd3c76e544f0cb820b9c7e9528e81_Out_0_Texture2D.tex, _Property_33fbd3c76e544f0cb820b9c7e9528e81_Out_0_Texture2D.samplerstate, _Property_33fbd3c76e544f0cb820b9c7e9528e81_Out_0_Texture2D.GetTransformedUV(IN.uv0.xy) );
+            float4 _SampleTexture2D_f3e95659e9514567a242a7b33c6c9989_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_33fbd3c76e544f0cb820b9c7e9528e81_Out_0_Texture2D.tex, _Property_33fbd3c76e544f0cb820b9c7e9528e81_Out_0_Texture2D.samplerstate, _Property_33fbd3c76e544f0cb820b9c7e9528e81_Out_0_Texture2D.GetTransformedUV(_TilingAndOffset_1abc2d20417c4993aecc2ba964288e6a_Out_3_Vector2) );
             float _SampleTexture2D_f3e95659e9514567a242a7b33c6c9989_R_4_Float = _SampleTexture2D_f3e95659e9514567a242a7b33c6c9989_RGBA_0_Vector4.r;
             float _SampleTexture2D_f3e95659e9514567a242a7b33c6c9989_G_5_Float = _SampleTexture2D_f3e95659e9514567a242a7b33c6c9989_RGBA_0_Vector4.g;
             float _SampleTexture2D_f3e95659e9514567a242a7b33c6c9989_B_6_Float = _SampleTexture2D_f3e95659e9514567a242a7b33c6c9989_RGBA_0_Vector4.b;
@@ -542,7 +559,7 @@ Shader "Unlit/Anime"
             float4 _Blend_fef4764d9fa944a7b392609d355d7daa_Out_2_Vector4;
             Unity_Blend_Overwrite_float4(_Multiply_3f5187371efa4c309ce253c19be6b91a_Out_2_Vector4, _Multiply_75cc17e6a7dd4f7dae35ba302c8fef8d_Out_2_Vector4, _Blend_fef4764d9fa944a7b392609d355d7daa_Out_2_Vector4, _OneMinus_e5094d91ff69434892b7b92767cc83f5_Out_1_Float);
             surface.BaseColor = (_Blend_fef4764d9fa944a7b392609d355d7daa_Out_2_Vector4.xyz);
-            surface.Alpha = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_A_7_Float;
+            surface.Alpha = 1;
             surface.AlphaClipThreshold = 0.5;
             return surface;
         }
@@ -621,10 +638,9 @@ Shader "Unlit/Anime"
         #endif
         
         ENDHLSL
-        }
-        Pass
+        }Pass
         {
-            Name "Outline"
+            Name "OutlineOne"
             Tags
             {
                 "LightMode" = "OutlineOne"
@@ -815,6 +831,7 @@ Shader "Unlit/Anime"
         float4 _Outline_Colour;
         float _OutlineThickness;
         float4 _BaseMap_TexelSize;
+        float4 _Texture2D_TexelSize;
         CBUFFER_END
         
         
@@ -822,6 +839,8 @@ Shader "Unlit/Anime"
         SAMPLER(SamplerState_Linear_Repeat);
         TEXTURE2D(_BaseMap);
         SAMPLER(sampler_BaseMap);
+        TEXTURE2D(_Texture2D);
+        SAMPLER(sampler_Texture2D);
         
         // Graph Includes
         // GraphIncludes: <None>
@@ -1027,8 +1046,6 @@ Shader "Unlit/Anime"
         
         #define ATTRIBUTES_NEED_NORMAL
         #define ATTRIBUTES_NEED_TANGENT
-        #define ATTRIBUTES_NEED_TEXCOORD0
-        #define VARYINGS_NEED_TEXCOORD0
         #define FEATURES_GRAPH_VERTEX
         /* WARNING: $splice Could not find named fragment 'PassInstancing' */
         #define SHADERPASS SHADERPASS_DEPTHONLY
@@ -1061,7 +1078,6 @@ Shader "Unlit/Anime"
              float3 positionOS : POSITION;
              float3 normalOS : NORMAL;
              float4 tangentOS : TANGENT;
-             float4 uv0 : TEXCOORD0;
             #if UNITY_ANY_INSTANCING_ENABLED
              uint instanceID : INSTANCEID_SEMANTIC;
             #endif
@@ -1069,7 +1085,6 @@ Shader "Unlit/Anime"
         struct Varyings
         {
              float4 positionCS : SV_POSITION;
-             float4 texCoord0;
             #if UNITY_ANY_INSTANCING_ENABLED
              uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
@@ -1085,7 +1100,6 @@ Shader "Unlit/Anime"
         };
         struct SurfaceDescriptionInputs
         {
-             float4 uv0;
         };
         struct VertexDescriptionInputs
         {
@@ -1096,7 +1110,6 @@ Shader "Unlit/Anime"
         struct PackedVaryings
         {
              float4 positionCS : SV_POSITION;
-             float4 texCoord0 : INTERP0;
             #if UNITY_ANY_INSTANCING_ENABLED
              uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
@@ -1116,7 +1129,6 @@ Shader "Unlit/Anime"
             PackedVaryings output;
             ZERO_INITIALIZE(PackedVaryings, output);
             output.positionCS = input.positionCS;
-            output.texCoord0.xyzw = input.texCoord0;
             #if UNITY_ANY_INSTANCING_ENABLED
             output.instanceID = input.instanceID;
             #endif
@@ -1136,7 +1148,6 @@ Shader "Unlit/Anime"
         {
             Varyings output;
             output.positionCS = input.positionCS;
-            output.texCoord0 = input.texCoord0.xyzw;
             #if UNITY_ANY_INSTANCING_ENABLED
             output.instanceID = input.instanceID;
             #endif
@@ -1168,6 +1179,7 @@ Shader "Unlit/Anime"
         float4 _Emission;
         float4 _BumpMap_TexelSize;
         float _BumpScale;
+        float _TileableTexture;
         CBUFFER_END
         
         
@@ -1240,13 +1252,7 @@ Shader "Unlit/Anime"
         SurfaceDescription SurfaceDescriptionFunction(SurfaceDescriptionInputs IN)
         {
             SurfaceDescription surface = (SurfaceDescription)0;
-            UnityTexture2D _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D = UnityBuildTexture2DStructNoScale(_BaseMap);
-            float4 _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.tex, _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.samplerstate, _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.GetTransformedUV(IN.uv0.xy) );
-            float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_R_4_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.r;
-            float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_G_5_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.g;
-            float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_B_6_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.b;
-            float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_A_7_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.a;
-            surface.Alpha = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_A_7_Float;
+            surface.Alpha = 1;
             surface.AlphaClipThreshold = 0.5;
             return surface;
         }
@@ -1295,7 +1301,6 @@ Shader "Unlit/Anime"
             #endif
         
         
-            output.uv0 = input.texCoord0;
         #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
         #define BUILD_SURFACE_DESCRIPTION_INPUTS_OUTPUT_FACESIGN output.FaceSign =                    IS_FRONT_VFACE(input.cullFace, true, false);
         #else
@@ -1359,9 +1364,7 @@ Shader "Unlit/Anime"
         
         #define ATTRIBUTES_NEED_NORMAL
         #define ATTRIBUTES_NEED_TANGENT
-        #define ATTRIBUTES_NEED_TEXCOORD0
         #define VARYINGS_NEED_NORMAL_WS
-        #define VARYINGS_NEED_TEXCOORD0
         #define FEATURES_GRAPH_VERTEX
         /* WARNING: $splice Could not find named fragment 'PassInstancing' */
         #define SHADERPASS SHADERPASS_DEPTHNORMALSONLY
@@ -1395,7 +1398,6 @@ Shader "Unlit/Anime"
              float3 positionOS : POSITION;
              float3 normalOS : NORMAL;
              float4 tangentOS : TANGENT;
-             float4 uv0 : TEXCOORD0;
             #if UNITY_ANY_INSTANCING_ENABLED
              uint instanceID : INSTANCEID_SEMANTIC;
             #endif
@@ -1404,7 +1406,6 @@ Shader "Unlit/Anime"
         {
              float4 positionCS : SV_POSITION;
              float3 normalWS;
-             float4 texCoord0;
             #if UNITY_ANY_INSTANCING_ENABLED
              uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
@@ -1420,7 +1421,6 @@ Shader "Unlit/Anime"
         };
         struct SurfaceDescriptionInputs
         {
-             float4 uv0;
         };
         struct VertexDescriptionInputs
         {
@@ -1431,8 +1431,7 @@ Shader "Unlit/Anime"
         struct PackedVaryings
         {
              float4 positionCS : SV_POSITION;
-             float4 texCoord0 : INTERP0;
-             float3 normalWS : INTERP1;
+             float3 normalWS : INTERP0;
             #if UNITY_ANY_INSTANCING_ENABLED
              uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
@@ -1452,7 +1451,6 @@ Shader "Unlit/Anime"
             PackedVaryings output;
             ZERO_INITIALIZE(PackedVaryings, output);
             output.positionCS = input.positionCS;
-            output.texCoord0.xyzw = input.texCoord0;
             output.normalWS.xyz = input.normalWS;
             #if UNITY_ANY_INSTANCING_ENABLED
             output.instanceID = input.instanceID;
@@ -1473,7 +1471,6 @@ Shader "Unlit/Anime"
         {
             Varyings output;
             output.positionCS = input.positionCS;
-            output.texCoord0 = input.texCoord0.xyzw;
             output.normalWS = input.normalWS.xyz;
             #if UNITY_ANY_INSTANCING_ENABLED
             output.instanceID = input.instanceID;
@@ -1506,6 +1503,7 @@ Shader "Unlit/Anime"
         float4 _Emission;
         float4 _BumpMap_TexelSize;
         float _BumpScale;
+        float _TileableTexture;
         CBUFFER_END
         
         
@@ -1578,13 +1576,7 @@ Shader "Unlit/Anime"
         SurfaceDescription SurfaceDescriptionFunction(SurfaceDescriptionInputs IN)
         {
             SurfaceDescription surface = (SurfaceDescription)0;
-            UnityTexture2D _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D = UnityBuildTexture2DStructNoScale(_BaseMap);
-            float4 _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.tex, _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.samplerstate, _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.GetTransformedUV(IN.uv0.xy) );
-            float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_R_4_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.r;
-            float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_G_5_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.g;
-            float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_B_6_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.b;
-            float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_A_7_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.a;
-            surface.Alpha = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_A_7_Float;
+            surface.Alpha = 1;
             surface.AlphaClipThreshold = 0.5;
             return surface;
         }
@@ -1633,7 +1625,6 @@ Shader "Unlit/Anime"
             #endif
         
         
-            output.uv0 = input.texCoord0;
         #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
         #define BUILD_SURFACE_DESCRIPTION_INPUTS_OUTPUT_FACESIGN output.FaceSign =                    IS_FRONT_VFACE(input.cullFace, true, false);
         #else
@@ -1695,9 +1686,7 @@ Shader "Unlit/Anime"
         
         #define ATTRIBUTES_NEED_NORMAL
         #define ATTRIBUTES_NEED_TANGENT
-        #define ATTRIBUTES_NEED_TEXCOORD0
         #define VARYINGS_NEED_NORMAL_WS
-        #define VARYINGS_NEED_TEXCOORD0
         #define FEATURES_GRAPH_VERTEX
         /* WARNING: $splice Could not find named fragment 'PassInstancing' */
         #define SHADERPASS SHADERPASS_SHADOWCASTER
@@ -1730,7 +1719,6 @@ Shader "Unlit/Anime"
              float3 positionOS : POSITION;
              float3 normalOS : NORMAL;
              float4 tangentOS : TANGENT;
-             float4 uv0 : TEXCOORD0;
             #if UNITY_ANY_INSTANCING_ENABLED
              uint instanceID : INSTANCEID_SEMANTIC;
             #endif
@@ -1739,7 +1727,6 @@ Shader "Unlit/Anime"
         {
              float4 positionCS : SV_POSITION;
              float3 normalWS;
-             float4 texCoord0;
             #if UNITY_ANY_INSTANCING_ENABLED
              uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
@@ -1755,7 +1742,6 @@ Shader "Unlit/Anime"
         };
         struct SurfaceDescriptionInputs
         {
-             float4 uv0;
         };
         struct VertexDescriptionInputs
         {
@@ -1766,8 +1752,7 @@ Shader "Unlit/Anime"
         struct PackedVaryings
         {
              float4 positionCS : SV_POSITION;
-             float4 texCoord0 : INTERP0;
-             float3 normalWS : INTERP1;
+             float3 normalWS : INTERP0;
             #if UNITY_ANY_INSTANCING_ENABLED
              uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
@@ -1787,7 +1772,6 @@ Shader "Unlit/Anime"
             PackedVaryings output;
             ZERO_INITIALIZE(PackedVaryings, output);
             output.positionCS = input.positionCS;
-            output.texCoord0.xyzw = input.texCoord0;
             output.normalWS.xyz = input.normalWS;
             #if UNITY_ANY_INSTANCING_ENABLED
             output.instanceID = input.instanceID;
@@ -1808,7 +1792,6 @@ Shader "Unlit/Anime"
         {
             Varyings output;
             output.positionCS = input.positionCS;
-            output.texCoord0 = input.texCoord0.xyzw;
             output.normalWS = input.normalWS.xyz;
             #if UNITY_ANY_INSTANCING_ENABLED
             output.instanceID = input.instanceID;
@@ -1841,6 +1824,7 @@ Shader "Unlit/Anime"
         float4 _Emission;
         float4 _BumpMap_TexelSize;
         float _BumpScale;
+        float _TileableTexture;
         CBUFFER_END
         
         
@@ -1913,13 +1897,7 @@ Shader "Unlit/Anime"
         SurfaceDescription SurfaceDescriptionFunction(SurfaceDescriptionInputs IN)
         {
             SurfaceDescription surface = (SurfaceDescription)0;
-            UnityTexture2D _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D = UnityBuildTexture2DStructNoScale(_BaseMap);
-            float4 _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.tex, _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.samplerstate, _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.GetTransformedUV(IN.uv0.xy) );
-            float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_R_4_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.r;
-            float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_G_5_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.g;
-            float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_B_6_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.b;
-            float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_A_7_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.a;
-            surface.Alpha = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_A_7_Float;
+            surface.Alpha = 1;
             surface.AlphaClipThreshold = 0.5;
             return surface;
         }
@@ -1968,7 +1946,6 @@ Shader "Unlit/Anime"
             #endif
         
         
-            output.uv0 = input.texCoord0;
         #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
         #define BUILD_SURFACE_DESCRIPTION_INPUTS_OUTPUT_FACESIGN output.FaceSign =                    IS_FRONT_VFACE(input.cullFace, true, false);
         #else
@@ -2211,6 +2188,7 @@ Shader "Unlit/Anime"
         float4 _Emission;
         float4 _BumpMap_TexelSize;
         float _BumpScale;
+        float _TileableTexture;
         CBUFFER_END
         
         
@@ -2242,6 +2220,16 @@ Shader "Unlit/Anime"
         #endif
         
         // Graph Functions
+        
+        void Unity_Branch_float2(float Predicate, float2 True, float2 False, out float2 Out)
+        {
+            Out = Predicate ? True : False;
+        }
+        
+        void Unity_TilingAndOffset_float(float2 UV, float2 Tiling, float2 Offset, out float2 Out)
+        {
+            Out = UV * Tiling + Offset;
+        }
         
         void Unity_Comparison_Equal_float(float A, float B, out float Out)
         {
@@ -2291,14 +2279,13 @@ Shader "Unlit/Anime"
         struct Bindings_NormalsWithNormalMap_c74b7548c3364bb4e83c796ef9a61f5a_float
         {
         float3 WorldSpaceNormal;
-        half4 uv0;
         };
         
-        void SG_NormalsWithNormalMap_c74b7548c3364bb4e83c796ef9a61f5a_float(float _BumpScale, UnityTexture2D _BumpMap, Bindings_NormalsWithNormalMap_c74b7548c3364bb4e83c796ef9a61f5a_float IN, out float3 OutVector3_1)
+        void SG_NormalsWithNormalMap_c74b7548c3364bb4e83c796ef9a61f5a_float(float _BumpScale, UnityTexture2D _BumpMap, float2 _UV, Bindings_NormalsWithNormalMap_c74b7548c3364bb4e83c796ef9a61f5a_float IN, out float3 OutVector3_1)
         {
         UnityTexture2D _Property_0651d1d4c972486292e8d2c55487c2bf_Out_0_Texture2D = _BumpMap;
-        float4 _UV_e48d2c952e05402b923cb5bf4b531840_Out_0_Vector4 = IN.uv0;
-        float4 _SampleTexture2D_c5d1308cc686492aa7caabc39cabd19a_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_0651d1d4c972486292e8d2c55487c2bf_Out_0_Texture2D.tex, _Property_0651d1d4c972486292e8d2c55487c2bf_Out_0_Texture2D.samplerstate, _Property_0651d1d4c972486292e8d2c55487c2bf_Out_0_Texture2D.GetTransformedUV((_UV_e48d2c952e05402b923cb5bf4b531840_Out_0_Vector4.xy)) );
+        float2 _Property_df98ab5b327f41849623711d2a0f4cea_Out_0_Vector2 = _UV;
+        float4 _SampleTexture2D_c5d1308cc686492aa7caabc39cabd19a_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_0651d1d4c972486292e8d2c55487c2bf_Out_0_Texture2D.tex, _Property_0651d1d4c972486292e8d2c55487c2bf_Out_0_Texture2D.samplerstate, _Property_0651d1d4c972486292e8d2c55487c2bf_Out_0_Texture2D.GetTransformedUV(_Property_df98ab5b327f41849623711d2a0f4cea_Out_0_Vector2) );
         _SampleTexture2D_c5d1308cc686492aa7caabc39cabd19a_RGBA_0_Vector4.rgb = UnpackNormal(_SampleTexture2D_c5d1308cc686492aa7caabc39cabd19a_RGBA_0_Vector4);
         float _SampleTexture2D_c5d1308cc686492aa7caabc39cabd19a_R_4_Float = _SampleTexture2D_c5d1308cc686492aa7caabc39cabd19a_RGBA_0_Vector4.r;
         float _SampleTexture2D_c5d1308cc686492aa7caabc39cabd19a_G_5_Float = _SampleTexture2D_c5d1308cc686492aa7caabc39cabd19a_RGBA_0_Vector4.g;
@@ -2408,7 +2395,17 @@ Shader "Unlit/Anime"
             SurfaceDescription surface = (SurfaceDescription)0;
             float4 _Property_e1161674d21445da80a94687d98739f4_Out_0_Vector4 = _ShadowColour;
             UnityTexture2D _Property_dd7f4a6742ac47d98f89f8a26d6220ef_Out_0_Texture2D = UnityBuildTexture2DStructNoScale(_ShadowMap);
-            float4 _SampleTexture2D_1c8e87e94a2848e2a1e557e907f7aaa5_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_dd7f4a6742ac47d98f89f8a26d6220ef_Out_0_Texture2D.tex, _Property_dd7f4a6742ac47d98f89f8a26d6220ef_Out_0_Texture2D.samplerstate, _Property_dd7f4a6742ac47d98f89f8a26d6220ef_Out_0_Texture2D.GetTransformedUV(IN.uv0.xy) );
+            float _Property_a9141355fdb34bec95b894e4d8018ed4_Out_0_Boolean = _TileableTexture;
+            float _Split_c683bce1946f4280b73440235e358c65_R_1_Float = (SHADERGRAPH_RENDERER_BOUNDS_MAX - SHADERGRAPH_RENDERER_BOUNDS_MIN)[0];
+            float _Split_c683bce1946f4280b73440235e358c65_G_2_Float = (SHADERGRAPH_RENDERER_BOUNDS_MAX - SHADERGRAPH_RENDERER_BOUNDS_MIN)[1];
+            float _Split_c683bce1946f4280b73440235e358c65_B_3_Float = (SHADERGRAPH_RENDERER_BOUNDS_MAX - SHADERGRAPH_RENDERER_BOUNDS_MIN)[2];
+            float _Split_c683bce1946f4280b73440235e358c65_A_4_Float = 0;
+            float2 _Vector2_55298d2e21e74f65bd91483b1980c02f_Out_0_Vector2 = float2(_Split_c683bce1946f4280b73440235e358c65_R_1_Float, _Split_c683bce1946f4280b73440235e358c65_B_3_Float);
+            float2 _Branch_83fbacdfe98d4fddb4feb1c4b06e37eb_Out_3_Vector2;
+            Unity_Branch_float2(_Property_a9141355fdb34bec95b894e4d8018ed4_Out_0_Boolean, _Vector2_55298d2e21e74f65bd91483b1980c02f_Out_0_Vector2, float2(1, 1), _Branch_83fbacdfe98d4fddb4feb1c4b06e37eb_Out_3_Vector2);
+            float2 _TilingAndOffset_1abc2d20417c4993aecc2ba964288e6a_Out_3_Vector2;
+            Unity_TilingAndOffset_float(IN.uv0.xy, _Branch_83fbacdfe98d4fddb4feb1c4b06e37eb_Out_3_Vector2, float2 (0, 0), _TilingAndOffset_1abc2d20417c4993aecc2ba964288e6a_Out_3_Vector2);
+            float4 _SampleTexture2D_1c8e87e94a2848e2a1e557e907f7aaa5_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_dd7f4a6742ac47d98f89f8a26d6220ef_Out_0_Texture2D.tex, _Property_dd7f4a6742ac47d98f89f8a26d6220ef_Out_0_Texture2D.samplerstate, _Property_dd7f4a6742ac47d98f89f8a26d6220ef_Out_0_Texture2D.GetTransformedUV(_TilingAndOffset_1abc2d20417c4993aecc2ba964288e6a_Out_3_Vector2) );
             float _SampleTexture2D_1c8e87e94a2848e2a1e557e907f7aaa5_R_4_Float = _SampleTexture2D_1c8e87e94a2848e2a1e557e907f7aaa5_RGBA_0_Vector4.r;
             float _SampleTexture2D_1c8e87e94a2848e2a1e557e907f7aaa5_G_5_Float = _SampleTexture2D_1c8e87e94a2848e2a1e557e907f7aaa5_RGBA_0_Vector4.g;
             float _SampleTexture2D_1c8e87e94a2848e2a1e557e907f7aaa5_B_6_Float = _SampleTexture2D_1c8e87e94a2848e2a1e557e907f7aaa5_RGBA_0_Vector4.b;
@@ -2417,7 +2414,7 @@ Shader "Unlit/Anime"
             float _Comparison_04622d25d50d4a2686463e0eecd65b7e_Out_2_Boolean;
             Unity_Comparison_Equal_float((_SampleTexture2D_1c8e87e94a2848e2a1e557e907f7aaa5_RGBA_0_Vector4).x, (Color_9e86cbdbc1be45109aa1cdddb29a660a).x, _Comparison_04622d25d50d4a2686463e0eecd65b7e_Out_2_Boolean);
             UnityTexture2D _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D = UnityBuildTexture2DStructNoScale(_BaseMap);
-            float4 _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.tex, _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.samplerstate, _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.GetTransformedUV(IN.uv0.xy) );
+            float4 _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.tex, _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.samplerstate, _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.GetTransformedUV(_TilingAndOffset_1abc2d20417c4993aecc2ba964288e6a_Out_3_Vector2) );
             float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_R_4_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.r;
             float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_G_5_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.g;
             float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_B_6_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.b;
@@ -2444,9 +2441,8 @@ Shader "Unlit/Anime"
             UnityTexture2D _Property_18db013475824cdf908febb8e5a55760_Out_0_Texture2D = UnityBuildTexture2DStructNoScale(_BumpMap);
             Bindings_NormalsWithNormalMap_c74b7548c3364bb4e83c796ef9a61f5a_float _NormalsWithNormalMap_1c717af811364118811418afd43d1ded;
             _NormalsWithNormalMap_1c717af811364118811418afd43d1ded.WorldSpaceNormal = IN.WorldSpaceNormal;
-            _NormalsWithNormalMap_1c717af811364118811418afd43d1ded.uv0 = IN.uv0;
             float3 _NormalsWithNormalMap_1c717af811364118811418afd43d1ded_OutVector3_1_Vector3;
-            SG_NormalsWithNormalMap_c74b7548c3364bb4e83c796ef9a61f5a_float(_Property_0576665307b745fa9087dad740d66048_Out_0_Float, _Property_18db013475824cdf908febb8e5a55760_Out_0_Texture2D, _NormalsWithNormalMap_1c717af811364118811418afd43d1ded, _NormalsWithNormalMap_1c717af811364118811418afd43d1ded_OutVector3_1_Vector3);
+            SG_NormalsWithNormalMap_c74b7548c3364bb4e83c796ef9a61f5a_float(_Property_0576665307b745fa9087dad740d66048_Out_0_Float, _Property_18db013475824cdf908febb8e5a55760_Out_0_Texture2D, _TilingAndOffset_1abc2d20417c4993aecc2ba964288e6a_Out_3_Vector2, _NormalsWithNormalMap_1c717af811364118811418afd43d1ded, _NormalsWithNormalMap_1c717af811364118811418afd43d1ded_OutVector3_1_Vector3);
             Bindings_GetMainLight_bf0598fe778624e4cbe47b8dc2e94161_half _GetMainLight_c415046b46b1405b89882a5dcb35bd3c;
             _GetMainLight_c415046b46b1405b89882a5dcb35bd3c.AbsoluteWorldSpacePosition = IN.AbsoluteWorldSpacePosition;
             half3 _GetMainLight_c415046b46b1405b89882a5dcb35bd3c_Direction_1_Vector3;
@@ -2472,7 +2468,7 @@ Shader "Unlit/Anime"
             float4 _Multiply_669960a70b714115997afe26c98d46fb_Out_2_Vector4;
             Unity_Multiply_float4_float4(_Lerp_16ebefcf70bd4274ac29f558bb8b8edd_Out_3_Vector4, _Multiply_b61d9b67585d43f4aeff8c7139c82707_Out_2_Vector4, _Multiply_669960a70b714115997afe26c98d46fb_Out_2_Vector4);
             UnityTexture2D _Property_d32ac20567a14f7cbef95bed5b24602d_Out_0_Texture2D = UnityBuildTexture2DStructNoScale(_DetailMap);
-            float4 _SampleTexture2D_76ba5cb604374b2c83aa8894f3b457f8_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_d32ac20567a14f7cbef95bed5b24602d_Out_0_Texture2D.tex, _Property_d32ac20567a14f7cbef95bed5b24602d_Out_0_Texture2D.samplerstate, _Property_d32ac20567a14f7cbef95bed5b24602d_Out_0_Texture2D.GetTransformedUV(IN.uv0.xy) );
+            float4 _SampleTexture2D_76ba5cb604374b2c83aa8894f3b457f8_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_d32ac20567a14f7cbef95bed5b24602d_Out_0_Texture2D.tex, _Property_d32ac20567a14f7cbef95bed5b24602d_Out_0_Texture2D.samplerstate, _Property_d32ac20567a14f7cbef95bed5b24602d_Out_0_Texture2D.GetTransformedUV(_TilingAndOffset_1abc2d20417c4993aecc2ba964288e6a_Out_3_Vector2) );
             float _SampleTexture2D_76ba5cb604374b2c83aa8894f3b457f8_R_4_Float = _SampleTexture2D_76ba5cb604374b2c83aa8894f3b457f8_RGBA_0_Vector4.r;
             float _SampleTexture2D_76ba5cb604374b2c83aa8894f3b457f8_G_5_Float = _SampleTexture2D_76ba5cb604374b2c83aa8894f3b457f8_RGBA_0_Vector4.g;
             float _SampleTexture2D_76ba5cb604374b2c83aa8894f3b457f8_B_6_Float = _SampleTexture2D_76ba5cb604374b2c83aa8894f3b457f8_RGBA_0_Vector4.b;
@@ -2480,7 +2476,7 @@ Shader "Unlit/Anime"
             float4 _Multiply_3f5187371efa4c309ce253c19be6b91a_Out_2_Vector4;
             Unity_Multiply_float4_float4(_Multiply_669960a70b714115997afe26c98d46fb_Out_2_Vector4, _SampleTexture2D_76ba5cb604374b2c83aa8894f3b457f8_RGBA_0_Vector4, _Multiply_3f5187371efa4c309ce253c19be6b91a_Out_2_Vector4);
             UnityTexture2D _Property_33fbd3c76e544f0cb820b9c7e9528e81_Out_0_Texture2D = UnityBuildTexture2DStructNoScale(_EmissionMap);
-            float4 _SampleTexture2D_f3e95659e9514567a242a7b33c6c9989_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_33fbd3c76e544f0cb820b9c7e9528e81_Out_0_Texture2D.tex, _Property_33fbd3c76e544f0cb820b9c7e9528e81_Out_0_Texture2D.samplerstate, _Property_33fbd3c76e544f0cb820b9c7e9528e81_Out_0_Texture2D.GetTransformedUV(IN.uv0.xy) );
+            float4 _SampleTexture2D_f3e95659e9514567a242a7b33c6c9989_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_33fbd3c76e544f0cb820b9c7e9528e81_Out_0_Texture2D.tex, _Property_33fbd3c76e544f0cb820b9c7e9528e81_Out_0_Texture2D.samplerstate, _Property_33fbd3c76e544f0cb820b9c7e9528e81_Out_0_Texture2D.GetTransformedUV(_TilingAndOffset_1abc2d20417c4993aecc2ba964288e6a_Out_3_Vector2) );
             float _SampleTexture2D_f3e95659e9514567a242a7b33c6c9989_R_4_Float = _SampleTexture2D_f3e95659e9514567a242a7b33c6c9989_RGBA_0_Vector4.r;
             float _SampleTexture2D_f3e95659e9514567a242a7b33c6c9989_G_5_Float = _SampleTexture2D_f3e95659e9514567a242a7b33c6c9989_RGBA_0_Vector4.g;
             float _SampleTexture2D_f3e95659e9514567a242a7b33c6c9989_B_6_Float = _SampleTexture2D_f3e95659e9514567a242a7b33c6c9989_RGBA_0_Vector4.b;
@@ -2495,7 +2491,7 @@ Shader "Unlit/Anime"
             float4 _Blend_fef4764d9fa944a7b392609d355d7daa_Out_2_Vector4;
             Unity_Blend_Overwrite_float4(_Multiply_3f5187371efa4c309ce253c19be6b91a_Out_2_Vector4, _Multiply_75cc17e6a7dd4f7dae35ba302c8fef8d_Out_2_Vector4, _Blend_fef4764d9fa944a7b392609d355d7daa_Out_2_Vector4, _OneMinus_e5094d91ff69434892b7b92767cc83f5_Out_1_Float);
             surface.BaseColor = (_Blend_fef4764d9fa944a7b392609d355d7daa_Out_2_Vector4.xyz);
-            surface.Alpha = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_A_7_Float;
+            surface.Alpha = 1;
             surface.AlphaClipThreshold = 0.5;
             return surface;
         }
@@ -2607,8 +2603,6 @@ Shader "Unlit/Anime"
         
         #define ATTRIBUTES_NEED_NORMAL
         #define ATTRIBUTES_NEED_TANGENT
-        #define ATTRIBUTES_NEED_TEXCOORD0
-        #define VARYINGS_NEED_TEXCOORD0
         #define FEATURES_GRAPH_VERTEX
         /* WARNING: $splice Could not find named fragment 'PassInstancing' */
         #define SHADERPASS SHADERPASS_DEPTHONLY
@@ -2643,7 +2637,6 @@ Shader "Unlit/Anime"
              float3 positionOS : POSITION;
              float3 normalOS : NORMAL;
              float4 tangentOS : TANGENT;
-             float4 uv0 : TEXCOORD0;
             #if UNITY_ANY_INSTANCING_ENABLED
              uint instanceID : INSTANCEID_SEMANTIC;
             #endif
@@ -2651,7 +2644,6 @@ Shader "Unlit/Anime"
         struct Varyings
         {
              float4 positionCS : SV_POSITION;
-             float4 texCoord0;
             #if UNITY_ANY_INSTANCING_ENABLED
              uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
@@ -2667,7 +2659,6 @@ Shader "Unlit/Anime"
         };
         struct SurfaceDescriptionInputs
         {
-             float4 uv0;
         };
         struct VertexDescriptionInputs
         {
@@ -2678,7 +2669,6 @@ Shader "Unlit/Anime"
         struct PackedVaryings
         {
              float4 positionCS : SV_POSITION;
-             float4 texCoord0 : INTERP0;
             #if UNITY_ANY_INSTANCING_ENABLED
              uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
@@ -2698,7 +2688,6 @@ Shader "Unlit/Anime"
             PackedVaryings output;
             ZERO_INITIALIZE(PackedVaryings, output);
             output.positionCS = input.positionCS;
-            output.texCoord0.xyzw = input.texCoord0;
             #if UNITY_ANY_INSTANCING_ENABLED
             output.instanceID = input.instanceID;
             #endif
@@ -2718,7 +2707,6 @@ Shader "Unlit/Anime"
         {
             Varyings output;
             output.positionCS = input.positionCS;
-            output.texCoord0 = input.texCoord0.xyzw;
             #if UNITY_ANY_INSTANCING_ENABLED
             output.instanceID = input.instanceID;
             #endif
@@ -2750,6 +2738,7 @@ Shader "Unlit/Anime"
         float4 _Emission;
         float4 _BumpMap_TexelSize;
         float _BumpScale;
+        float _TileableTexture;
         CBUFFER_END
         
         
@@ -2822,13 +2811,7 @@ Shader "Unlit/Anime"
         SurfaceDescription SurfaceDescriptionFunction(SurfaceDescriptionInputs IN)
         {
             SurfaceDescription surface = (SurfaceDescription)0;
-            UnityTexture2D _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D = UnityBuildTexture2DStructNoScale(_BaseMap);
-            float4 _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.tex, _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.samplerstate, _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.GetTransformedUV(IN.uv0.xy) );
-            float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_R_4_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.r;
-            float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_G_5_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.g;
-            float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_B_6_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.b;
-            float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_A_7_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.a;
-            surface.Alpha = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_A_7_Float;
+            surface.Alpha = 1;
             surface.AlphaClipThreshold = 0.5;
             return surface;
         }
@@ -2877,7 +2860,6 @@ Shader "Unlit/Anime"
             #endif
         
         
-            output.uv0 = input.texCoord0;
         #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
         #define BUILD_SURFACE_DESCRIPTION_INPUTS_OUTPUT_FACESIGN output.FaceSign =                    IS_FRONT_VFACE(input.cullFace, true, false);
         #else
@@ -2934,8 +2916,6 @@ Shader "Unlit/Anime"
         
         #define ATTRIBUTES_NEED_NORMAL
         #define ATTRIBUTES_NEED_TANGENT
-        #define ATTRIBUTES_NEED_TEXCOORD0
-        #define VARYINGS_NEED_TEXCOORD0
         #define FEATURES_GRAPH_VERTEX
         /* WARNING: $splice Could not find named fragment 'PassInstancing' */
         #define SHADERPASS SHADERPASS_DEPTHONLY
@@ -2970,7 +2950,6 @@ Shader "Unlit/Anime"
              float3 positionOS : POSITION;
              float3 normalOS : NORMAL;
              float4 tangentOS : TANGENT;
-             float4 uv0 : TEXCOORD0;
             #if UNITY_ANY_INSTANCING_ENABLED
              uint instanceID : INSTANCEID_SEMANTIC;
             #endif
@@ -2978,7 +2957,6 @@ Shader "Unlit/Anime"
         struct Varyings
         {
              float4 positionCS : SV_POSITION;
-             float4 texCoord0;
             #if UNITY_ANY_INSTANCING_ENABLED
              uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
@@ -2994,7 +2972,6 @@ Shader "Unlit/Anime"
         };
         struct SurfaceDescriptionInputs
         {
-             float4 uv0;
         };
         struct VertexDescriptionInputs
         {
@@ -3005,7 +2982,6 @@ Shader "Unlit/Anime"
         struct PackedVaryings
         {
              float4 positionCS : SV_POSITION;
-             float4 texCoord0 : INTERP0;
             #if UNITY_ANY_INSTANCING_ENABLED
              uint instanceID : CUSTOM_INSTANCE_ID;
             #endif
@@ -3025,7 +3001,6 @@ Shader "Unlit/Anime"
             PackedVaryings output;
             ZERO_INITIALIZE(PackedVaryings, output);
             output.positionCS = input.positionCS;
-            output.texCoord0.xyzw = input.texCoord0;
             #if UNITY_ANY_INSTANCING_ENABLED
             output.instanceID = input.instanceID;
             #endif
@@ -3045,7 +3020,6 @@ Shader "Unlit/Anime"
         {
             Varyings output;
             output.positionCS = input.positionCS;
-            output.texCoord0 = input.texCoord0.xyzw;
             #if UNITY_ANY_INSTANCING_ENABLED
             output.instanceID = input.instanceID;
             #endif
@@ -3077,6 +3051,7 @@ Shader "Unlit/Anime"
         float4 _Emission;
         float4 _BumpMap_TexelSize;
         float _BumpScale;
+        float _TileableTexture;
         CBUFFER_END
         
         
@@ -3149,13 +3124,7 @@ Shader "Unlit/Anime"
         SurfaceDescription SurfaceDescriptionFunction(SurfaceDescriptionInputs IN)
         {
             SurfaceDescription surface = (SurfaceDescription)0;
-            UnityTexture2D _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D = UnityBuildTexture2DStructNoScale(_BaseMap);
-            float4 _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4 = SAMPLE_TEXTURE2D(_Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.tex, _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.samplerstate, _Property_4231ef4a9cb44eceb042efdaafe2689c_Out_0_Texture2D.GetTransformedUV(IN.uv0.xy) );
-            float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_R_4_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.r;
-            float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_G_5_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.g;
-            float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_B_6_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.b;
-            float _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_A_7_Float = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_RGBA_0_Vector4.a;
-            surface.Alpha = _SampleTexture2D_d84d26fcc8fc4784b5e2cb0cf83fb1ce_A_7_Float;
+            surface.Alpha = 1;
             surface.AlphaClipThreshold = 0.5;
             return surface;
         }
@@ -3204,7 +3173,6 @@ Shader "Unlit/Anime"
             #endif
         
         
-            output.uv0 = input.texCoord0;
         #if defined(SHADER_STAGE_FRAGMENT) && defined(VARYINGS_NEED_CULLFACE)
         #define BUILD_SURFACE_DESCRIPTION_INPUTS_OUTPUT_FACESIGN output.FaceSign =                    IS_FRONT_VFACE(input.cullFace, true, false);
         #else
