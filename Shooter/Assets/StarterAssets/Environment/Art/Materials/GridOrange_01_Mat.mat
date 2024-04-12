@@ -8,8 +8,9 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: GridOrange_01_Mat
-  m_Shader: {fileID: 4800000, guid: e738e39e5972fd9448e095657f58805d, type: 3}
-  m_Parent: {fileID: 2100000, guid: ff188f58422043f489060e28a5e4e0c0, type: 2}
+  m_Shader: {fileID: -6465566751694194690, guid: 99bcc34db8ded924a8d258cb92b30aec,
+    type: 3}
+  m_Parent: {fileID: 2100000, guid: dbf898c9f9c4a2d46aa6336e23caeb61, type: 2}
   m_ModifiedSerializedProperties: 18
   m_ValidKeywords: []
   m_InvalidKeywords:
@@ -47,6 +48,7 @@ Material:
     - _Falloff_Amount: 0
     - _OcclusionStrength: 0
     - _OutlineThickness: 0.015625
+    - _ShadowColorDarken: 1
     - _TileableTexture: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 0.5985916, b: 0, a: 1}
