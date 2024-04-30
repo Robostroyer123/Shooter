@@ -67,15 +67,6 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
-                },
-                {
-                    "name": "SubShoot",
-                    "type": "Button",
-                    "id": "68f75e59-920d-43c6-bd84-77f08e5ca43e",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -280,7 +271,7 @@
                 {
                     "name": "",
                     "id": "1edecfc9-7c08-469d-82bf-1b2af0f12b05",
-                    "path": "<Mouse>/middleButton",
+                    "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "KeyboardMouse",
@@ -318,28 +309,6 @@
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "Shoot",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "c657f291-f8f7-4b7e-8d8f-c9a51f596d2a",
-                    "path": "<Mouse>/rightButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "KeyboardMouse",
-                    "action": "SubShoot",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "ee1a2c7a-b87b-4f5f-9a30-4e4f67026e2c",
-                    "path": "<Gamepad>/leftTrigger",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Gamepad",
-                    "action": "SubShoot",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

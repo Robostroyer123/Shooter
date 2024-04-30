@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(Slider))]
 public class HealthBar : MonoBehaviour
 {
     public Health healthObj;
@@ -15,5 +16,6 @@ public class HealthBar : MonoBehaviour
     void Update()
     {
         if(healthObj == null) return;
+        healthSlider.value = healthObj.healthFraction;
     }
 }

@@ -9,6 +9,7 @@ public class Health : MonoBehaviour
     bool isDead;
     TeamSetting Team { get { return GetComponent<TeamSetting>(); } }
     public bool IsDead { get { return isDead; } }
+    public float healthFraction { get { return Mathf.Clamp01(health / maxHealth); } }
     public void SetHealth(float value)
     {
         health = Mathf.Clamp(value, 0, maxHealth);
