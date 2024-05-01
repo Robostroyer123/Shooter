@@ -481,6 +481,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   zoomCamera: {fileID: 0}
+  zoomVolume: {fileID: 0}
 --- !u!114 &7854078246227782986
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -494,6 +495,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   buttonHeld: 0
+  burstNumber: 1
+  fixedBurstPattern: 0
+  flatBottomPattern: 0
   hitPrefab: {fileID: 7316899376736508360, guid: c27248656cc274a4283a38070050e473,
     type: 3}
   missPrefab: {fileID: 1332481560483690504, guid: 33f33517e61e1df43a148935fb6a3257,
@@ -502,8 +506,38 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   hitscanOrigin: {fileID: 0}
-  distance: 100
+  gunObject: {fileID: 0}
+  recoilDistance: 0.2
+  recoilAngle: 5
+  angleVariance: 2
+  zoomedAngleVariance: 1
+  standardDistance: 100
+  damageDistanceFalloff:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1.5
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0.5
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   firingTime: 0.2
+  damage: 10
 --- !u!114 &8051880294905494177
 MonoBehaviour:
   m_ObjectHideFlags: 0

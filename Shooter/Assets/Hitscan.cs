@@ -17,7 +17,8 @@ public class Hitscan : MonoBehaviour
     public float recoilDistance = 0.2f, recoilAngle = 20;
     [Range(0,89)] public float angleVariance;
     [Range(0, 89)] public float zoomedAngleVariance;
-    public float distance;
+    public float standardDistance = 100f;
+    public AnimationCurve damageDistanceFalloff = AnimationCurve.EaseInOut(0, 1.5f, 1, 0.5f);
     [Tooltip("Time inbetween shots.")] public float firingTime;
     public float damage;
     float timeSinceLastFire = Mathf.Infinity;
@@ -65,15 +66,16 @@ public class Hitscan : MonoBehaviour
             //print(i);
             float variance = zoomCamera != null && zoomCamera.zoomedIn ? zoomedAngleVariance : angleVariance;
             float rayRotation = flatBottomPattern ? 180 / burstNumber : 0;
-            if (fixedBurstPattern ? Physics.Raycast(hitscanOrigin.position, hitscanOrigin.forward + Quaternion.AngleAxis((i / burstNumber) * 360 + rayRotation, hitscanOrigin.forward) * Vector3.up * Mathf.Tan(Mathf.Deg2Rad * variance), out hit, distance, layerMask)
-                : Physics.Raycast(hitscanOrigin.position, hitscanOrigin.forward + (Vector3)Random.insideUnitCircle * Mathf.Tan(Mathf.Deg2Rad * variance), out hit, distance, layerMask))
+            if (fixedBurstPattern ? Physics.Raycast(hitscanOrigin.position, hitscanOrigin.forward + Quaternion.AngleAxis((i / burstNumber) * 360 + rayRotation, hitscanOrigin.forward) * Vector3.up * Mathf.Tan(Mathf.Deg2Rad * variance), out hit, standardDistance, layerMask)
+                : Physics.Raycast(hitscanOrigin.position, hitscanOrigin.forward + (Vector3)Random.insideUnitCircle * Mathf.Tan(Mathf.Deg2Rad * variance), out hit, standardDistance, layerMask))
             {
                 if (hit.transform.TryGetComponent(out Health health))
                 {
                     if (hitPrefab != null)
                     {
+                        float damageDistModifier = damageDistanceFalloff.Evaluate(hit.distance / standardDistance);
                         Instantiate(hitPrefab, hit.point, Quaternion.Euler(hit.normal));
-                        health.TakeDamage(Mathf.Max(damage, 1, damage), transform);
+                        health.TakeDamage(Mathf.Max(damage, 1, damage) * damageDistModifier, transform);
                     }
                 }
                 else
@@ -90,27 +92,27 @@ public class Hitscan : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
-        DrawCone(angleVariance);
+        if(hitscanOrigin != null) DrawCone(angleVariance);
 
         Gizmos.color = Color.red;
-        DrawCone(zoomedAngleVariance);
+        if (hitscanOrigin != null) DrawCone(zoomedAngleVariance);
 
         void DrawCone(float varianceInAngles, bool addDiagonals = false)
         {
             if(!fixedBurstPattern)
             {
-                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + Vector3.right * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
-                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward - Vector3.right * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + Vector3.right * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * standardDistance);
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward - Vector3.right * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * standardDistance);
 
-                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + Vector3.up * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
-                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward - Vector3.up * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + Vector3.up * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * standardDistance);
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward - Vector3.up * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * standardDistance);
 
                 if (!addDiagonals) return;
-                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(1, 1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
-                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(-1, 1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(1, 1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * standardDistance);
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(-1, 1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * standardDistance);
 
-                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(1, -1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
-                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(-1, -1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(1, -1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * standardDistance);
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(-1, -1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * standardDistance);
             }
             else
             {
@@ -124,7 +126,7 @@ public class Hitscan : MonoBehaviour
 
         void DrawRay(float i, float varianceInAngles, float rayRotation = 0)
         { 
-            Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + Quaternion.AngleAxis(i / burstNumber * 360 + rayRotation, hitscanOrigin.forward) * Vector3.up * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance); 
+            Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + Quaternion.AngleAxis(i / burstNumber * 360 + rayRotation, hitscanOrigin.forward) * Vector3.up * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * standardDistance); 
         }
     }
 }
