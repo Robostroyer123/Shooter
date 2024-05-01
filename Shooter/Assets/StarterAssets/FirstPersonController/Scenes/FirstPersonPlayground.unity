@@ -3150,7 +3150,7 @@ PrefabInstance:
     - target: {fileID: 7854078246227782986, guid: c5efc39a8aaf6e64ea40e9ad573e9b47,
         type: 3}
       propertyPath: burstNumber
-      value: 1
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 7854078246227782986, guid: c5efc39a8aaf6e64ea40e9ad573e9b47,
         type: 3}
@@ -3167,6 +3167,16 @@ PrefabInstance:
       propertyPath: hitscanOrigin
       value: 
       objectReference: {fileID: 163252369}
+    - target: {fileID: 7854078246227782986, guid: c5efc39a8aaf6e64ea40e9ad573e9b47,
+        type: 3}
+      propertyPath: fixedBurstPattern
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7854078246227782986, guid: c5efc39a8aaf6e64ea40e9ad573e9b47,
+        type: 3}
+      propertyPath: flatBottomPattern
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7854078246227782986, guid: c5efc39a8aaf6e64ea40e9ad573e9b47,
         type: 3}
       propertyPath: zoomAngleVariance

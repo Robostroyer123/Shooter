@@ -6,7 +6,10 @@ using DG.Tweening;
 public class Hitscan : MonoBehaviour
 {
     [Tooltip("Whether or not holding the button down fires the gun.")] public bool buttonHeld;
+    [Space]
     public int burstNumber = 1;
+    public bool fixedBurstPattern;
+    public bool flatBottomPattern;
     [Space]
     public GameObject hitPrefab, missPrefab;
     public LayerMask layerMask;
@@ -18,6 +21,8 @@ public class Hitscan : MonoBehaviour
     [Tooltip("Time inbetween shots.")] public float firingTime;
     public float damage;
     float timeSinceLastFire = Mathf.Infinity;
+
+    RaycastHit hit;
 
     StarterAssetsInputs inputs;
     ZoomCamera zoomCamera;
@@ -52,8 +57,16 @@ public class Hitscan : MonoBehaviour
         }
         for(int i = 0; i < burstNumber; i++)
         {
+            HitScan(i);
+        }
+
+        void HitScan(float i = 0)
+        {
+            //print(i);
             float variance = zoomCamera != null && zoomCamera.zoomedIn ? zoomedAngleVariance : angleVariance;
-            if (Physics.Raycast(hitscanOrigin.position, hitscanOrigin.forward + (Vector3)Random.insideUnitCircle* Mathf.Tan(Mathf.Deg2Rad * variance), out RaycastHit hit, distance, layerMask))
+            float rayRotation = flatBottomPattern ? 180 / burstNumber : 0;
+            if (fixedBurstPattern ? Physics.Raycast(hitscanOrigin.position, hitscanOrigin.forward + Quaternion.AngleAxis((i / burstNumber) * 360 + rayRotation, hitscanOrigin.forward) * Vector3.up * Mathf.Tan(Mathf.Deg2Rad * variance), out hit, distance, layerMask)
+                : Physics.Raycast(hitscanOrigin.position, hitscanOrigin.forward + (Vector3)Random.insideUnitCircle * Mathf.Tan(Mathf.Deg2Rad * variance), out hit, distance, layerMask))
             {
                 if (hit.transform.TryGetComponent(out Health health))
                 {
@@ -84,18 +97,34 @@ public class Hitscan : MonoBehaviour
 
         void DrawCone(float varianceInAngles, bool addDiagonals = false)
         {
-            Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + Vector3.right * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
-            Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward - Vector3.right * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
+            if(!fixedBurstPattern)
+            {
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + Vector3.right * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward - Vector3.right * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
 
-            Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + Vector3.up * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
-            Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward - Vector3.up * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + Vector3.up * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward - Vector3.up * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
 
-            if (!addDiagonals) return;
-            Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(1, 1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
-            Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(-1, 1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
+                if (!addDiagonals) return;
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(1, 1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(-1, 1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
 
-            Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(1, -1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
-            Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(-1, -1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(1, -1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(-1, -1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
+            }
+            else
+            {
+                for (int i = 0; i < burstNumber; i++)
+                {
+                    float rayRotation = flatBottomPattern ? 180 / burstNumber : 0;
+                    DrawRay(i, varianceInAngles, rayRotation);
+                }
+            }
+        }
+
+        void DrawRay(float i, float varianceInAngles, float rayRotation = 0)
+        { 
+            Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + Quaternion.AngleAxis(i / burstNumber * 360 + rayRotation, hitscanOrigin.forward) * Vector3.up * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance); 
         }
     }
 }
