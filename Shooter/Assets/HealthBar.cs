@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class HealthBar : MonoBehaviour
 {
     public Health healthObj;
+    public UnityEngine.Rendering.Volume healthVolume;
     Slider healthSlider;
     private void Start()
     {
@@ -17,5 +18,6 @@ public class HealthBar : MonoBehaviour
     {
         if(healthObj == null) return;
         healthSlider.value = healthObj.healthFraction;
+        if(healthVolume != null) healthVolume.weight = Mathf.Clamp01(1 - healthObj.healthFraction);
     }
 }

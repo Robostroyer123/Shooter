@@ -11,6 +11,7 @@ public class Hitscan : MonoBehaviour
     public bool fixedBurstPattern;
     public bool flatBottomPattern;
     [Space]
+    public ParticleSystem particle;
     public GameObject hitPrefab, missPrefab;
     public LayerMask layerMask;
     public Transform hitscanOrigin, gunObject;
@@ -24,6 +25,7 @@ public class Hitscan : MonoBehaviour
     float timeSinceLastFire = Mathf.Infinity;
 
     RaycastHit hit;
+    ParticleSystem.Particle[] m_Particles;
 
     StarterAssetsInputs inputs;
     ZoomCamera zoomCamera;
@@ -53,22 +55,34 @@ public class Hitscan : MonoBehaviour
         timeSinceLastFire = 0;
         if (gunObject != null) 
         { 
-            gunObject.DOPunchPosition(Vector3.back * recoilDistance, firingTime);
-            gunObject.DOPunchRotation(Vector3.right * -recoilAngle, firingTime);
+            gunObject.DOPunchPosition(Vector3.back * recoilDistance, firingTime, 1);
+            gunObject.DOPunchRotation(Vector3.right * -recoilAngle, firingTime, 1);
         }
         for(int i = 0; i < burstNumber; i++)
         {
-            HitScan(i);
+            HitScan(i, i);
         }
 
-        void HitScan(float i = 0)
+        void HitScan(float f = 0, int i = 0)
         {
             //print(i);
             float variance = zoomCamera != null && zoomCamera.zoomedIn ? zoomedAngleVariance : angleVariance;
             float rayRotation = flatBottomPattern ? 180 / burstNumber : 0;
-            if (fixedBurstPattern ? Physics.Raycast(hitscanOrigin.position, hitscanOrigin.forward + Quaternion.AngleAxis((i / burstNumber) * 360 + rayRotation, hitscanOrigin.forward) * Vector3.up * Mathf.Tan(Mathf.Deg2Rad * variance), out hit, standardDistance, layerMask)
+            if (fixedBurstPattern ? Physics.Raycast(hitscanOrigin.position, hitscanOrigin.forward + Quaternion.AngleAxis((f / burstNumber) * 360 + rayRotation, hitscanOrigin.forward) * Vector3.up * Mathf.Tan(Mathf.Deg2Rad * variance), out hit, standardDistance, layerMask)
                 : Physics.Raycast(hitscanOrigin.position, hitscanOrigin.forward + (Vector3)Random.insideUnitCircle * Mathf.Tan(Mathf.Deg2Rad * variance), out hit, standardDistance, layerMask))
             {
+                if(particle != null)
+                {
+                    if (m_Particles == null || m_Particles.Length < particle.main.maxParticles)
+                        m_Particles = new ParticleSystem.Particle[particle.main.maxParticles];
+
+                    particle.Emit(burstNumber);// GetParticles is allocation free because we reuse the m_Particles buffer between updates
+
+                    m_Particles[i].rotation3D = Quaternion.LookRotation(hit.point - hitscanOrigin.position) * Vector3.forward;
+
+                    // Apply the particle changes to the Particle System
+                    particle.SetParticles(m_Particles, burstNumber);
+                }
                 if (hit.transform.TryGetComponent(out Health health))
                 {
                     if (hitPrefab != null)
