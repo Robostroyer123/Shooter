@@ -26,7 +26,7 @@ public class Health : MonoBehaviour
         {
             return;
         }
-        health = Mathf.Max(health - damage, 0);
+        health = Mathf.Max(0, health - damage);
         print("Hit: " + transform.name);
         if (health <= 0 && !isDead)
         {
@@ -57,6 +57,10 @@ public class Health : MonoBehaviour
     void Die(Transform instigator)
     {
         print("Die" + instigator);
+        if(instigator.TryGetComponent(out ScoreKeeper score))
+        {
+            score.OnKill();
+        }
     }
 
     void Resurrect()

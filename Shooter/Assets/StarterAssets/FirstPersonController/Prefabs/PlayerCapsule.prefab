@@ -498,6 +498,7 @@ MonoBehaviour:
   burstNumber: 1
   fixedBurstPattern: 0
   flatBottomPattern: 0
+  particle: {fileID: 0}
   hitPrefab: {fileID: 7316899376736508360, guid: c27248656cc274a4283a38070050e473,
     type: 3}
   missPrefab: {fileID: 1332481560483690504, guid: 33f33517e61e1df43a148935fb6a3257,
@@ -511,7 +512,7 @@ MonoBehaviour:
   recoilAngle: 5
   angleVariance: 2
   zoomedAngleVariance: 1
-  standardDistance: 100
+  standardDistance: 10
   damageDistanceFalloff:
     serializedVersion: 2
     m_Curve:

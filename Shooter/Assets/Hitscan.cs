@@ -11,6 +11,9 @@ public class Hitscan : MonoBehaviour
     public bool fixedBurstPattern;
     public bool flatBottomPattern;
     [Space]
+    [Tooltip("Time inbetween shots.")] public float firingTime;
+    public float damage;
+    [Space]
     public ParticleSystem particle;
     public GameObject hitPrefab, missPrefab;
     public LayerMask layerMask;
@@ -18,14 +21,13 @@ public class Hitscan : MonoBehaviour
     public float recoilDistance = 0.2f, recoilAngle = 20;
     [Range(0,89)] public float angleVariance;
     [Range(0, 89)] public float zoomedAngleVariance;
-    public float standardDistance = 100f;
+    public float distance = 100f;
+    [Space]
+    public bool distanceFalloff;
     public AnimationCurve damageDistanceFalloff = AnimationCurve.EaseInOut(0, 1.5f, 1, 0.5f);
-    [Tooltip("Time inbetween shots.")] public float firingTime;
-    public float damage;
     float timeSinceLastFire = Mathf.Infinity;
 
     RaycastHit hit;
-    ParticleSystem.Particle[] m_Particles;
 
     StarterAssetsInputs inputs;
     ZoomCamera zoomCamera;
@@ -35,6 +37,12 @@ public class Hitscan : MonoBehaviour
         if (hitscanOrigin == null) hitscanOrigin = transform;
         TryGetComponent(out inputs);
         TryGetComponent(out zoomCamera);
+
+        if(particle != null)
+        {
+            var emission = particle.emission;
+            emission.SetBursts(new ParticleSystem.Burst[] { new ParticleSystem.Burst(0.0f, burstNumber) });
+        }
     }
 
     private void Update()
@@ -60,34 +68,26 @@ public class Hitscan : MonoBehaviour
         }
         for(int i = 0; i < burstNumber; i++)
         {
-            HitScan(i, i);
+            HitScan(i);
         }
 
-        void HitScan(float f = 0, int i = 0)
+        void HitScan(float i = 0)
         {
             //print(i);
             float variance = zoomCamera != null && zoomCamera.zoomedIn ? zoomedAngleVariance : angleVariance;
             float rayRotation = flatBottomPattern ? 180 / burstNumber : 0;
-            if (fixedBurstPattern ? Physics.Raycast(hitscanOrigin.position, hitscanOrigin.forward + Quaternion.AngleAxis((f / burstNumber) * 360 + rayRotation, hitscanOrigin.forward) * Vector3.up * Mathf.Tan(Mathf.Deg2Rad * variance), out hit, standardDistance, layerMask)
-                : Physics.Raycast(hitscanOrigin.position, hitscanOrigin.forward + (Vector3)Random.insideUnitCircle * Mathf.Tan(Mathf.Deg2Rad * variance), out hit, standardDistance, layerMask))
+            if (fixedBurstPattern ? Physics.Raycast(hitscanOrigin.position, hitscanOrigin.forward + Quaternion.AngleAxis((i / burstNumber) * 360 + rayRotation, hitscanOrigin.forward) * Vector3.up * Mathf.Tan(Mathf.Deg2Rad * variance), out hit, distance, layerMask)
+                : Physics.Raycast(hitscanOrigin.position, hitscanOrigin.forward + (Vector3)Random.insideUnitCircle * Mathf.Tan(Mathf.Deg2Rad * variance), out hit, distance, layerMask))
             {
                 if(particle != null)
                 {
-                    if (m_Particles == null || m_Particles.Length < particle.main.maxParticles)
-                        m_Particles = new ParticleSystem.Particle[particle.main.maxParticles];
-
-                    particle.Emit(burstNumber);// GetParticles is allocation free because we reuse the m_Particles buffer between updates
-
-                    m_Particles[i].rotation3D = Quaternion.LookRotation(hit.point - hitscanOrigin.position) * Vector3.forward;
-
-                    // Apply the particle changes to the Particle System
-                    particle.SetParticles(m_Particles, burstNumber);
+                    particle.Play();
                 }
                 if (hit.transform.TryGetComponent(out Health health))
                 {
                     if (hitPrefab != null)
                     {
-                        float damageDistModifier = damageDistanceFalloff.Evaluate(hit.distance / standardDistance);
+                        float damageDistModifier = !distanceFalloff ? 1 : damageDistanceFalloff.Evaluate(hit.distance / distance);
                         Instantiate(hitPrefab, hit.point, Quaternion.Euler(hit.normal));
                         health.TakeDamage(Mathf.Max(damage, 1, damage) * damageDistModifier, transform);
                     }
@@ -115,18 +115,18 @@ public class Hitscan : MonoBehaviour
         {
             if(!fixedBurstPattern)
             {
-                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + Vector3.right * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * standardDistance);
-                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward - Vector3.right * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * standardDistance);
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + Vector3.right * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward - Vector3.right * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
 
-                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + Vector3.up * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * standardDistance);
-                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward - Vector3.up * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * standardDistance);
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + Vector3.up * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward - Vector3.up * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
 
                 if (!addDiagonals) return;
-                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(1, 1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * standardDistance);
-                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(-1, 1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * standardDistance);
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(1, 1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(-1, 1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
 
-                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(1, -1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * standardDistance);
-                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(-1, -1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * standardDistance);
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(1, -1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
+                Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + new Vector3(-1, -1, 0).normalized * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance);
             }
             else
             {
@@ -140,7 +140,7 @@ public class Hitscan : MonoBehaviour
 
         void DrawRay(float i, float varianceInAngles, float rayRotation = 0)
         { 
-            Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + Quaternion.AngleAxis(i / burstNumber * 360 + rayRotation, hitscanOrigin.forward) * Vector3.up * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * standardDistance); 
+            Gizmos.DrawRay(hitscanOrigin.position, (hitscanOrigin.forward + Quaternion.AngleAxis(i / burstNumber * 360 + rayRotation, hitscanOrigin.forward) * Vector3.up * Mathf.Tan(Mathf.Deg2Rad * varianceInAngles)) * distance); 
         }
     }
 }
