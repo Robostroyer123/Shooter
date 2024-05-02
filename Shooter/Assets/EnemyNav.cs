@@ -29,4 +29,10 @@ public class EnemyNav : MonoBehaviour
             agent.isStopped = true;
         }
     }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, chaseRange);
+    }
 }
