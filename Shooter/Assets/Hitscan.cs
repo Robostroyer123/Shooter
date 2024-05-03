@@ -31,6 +31,7 @@ public class Hitscan : MonoBehaviour
 
     StarterAssetsInputs inputs;
     ZoomCamera zoomCamera;
+    public void SetTimeSinceLastFire(float time) {  timeSinceLastFire = time; }
 
     private void Start()
     {
