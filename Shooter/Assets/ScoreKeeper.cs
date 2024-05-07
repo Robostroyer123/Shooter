@@ -13,6 +13,8 @@ public class ScoreKeeper : MonoBehaviour
     public TextMeshProUGUI streakText;
 
     [Space]
+    public bool killResetsStreak;
+    public float killTimeIncrease = 0.5f;
     [Tooltip("How much time you have to kill to continue the streak.")] public float streakTimerCurve = 1;
     public float streakScoreMultiplier = 1.5f;
     public float scorePerKill = 100f;
@@ -47,7 +49,14 @@ public class ScoreKeeper : MonoBehaviour
     public void OnKill()
     {
         killStreak++;
-        timeSinceLastKill = 0;
+        if (killResetsStreak)
+        {
+            timeSinceLastKill = 0;
+        }
+        else
+        {
+            timeSinceLastKill -= killTimeIncrease;
+        }
         scoreMultiplier = streakScoreMultiplier;
         score += scorePerKill * scoreMultiplier;
         UpdateText();

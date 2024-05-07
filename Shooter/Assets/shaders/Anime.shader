@@ -51,7 +51,7 @@ Shader "Unlit/Anime"
             Name "Universal Forward"
             Tags
             {
-                // LightMode: <None>
+
             }
         
         // Render State
