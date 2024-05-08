@@ -31,6 +31,7 @@ public class Hitscan : MonoBehaviour
 
     StarterAssetsInputs inputs;
     ZoomCamera zoomCamera;
+    Health health;
     public void SetTimeSinceLastFire(float time) {  timeSinceLastFire = time; }
 
     private void Start()
@@ -38,8 +39,9 @@ public class Hitscan : MonoBehaviour
         if (hitscanOrigin == null) hitscanOrigin = transform;
         TryGetComponent(out inputs);
         TryGetComponent(out zoomCamera);
+        TryGetComponent(out health);
 
-        if(particle != null)
+        if (particle != null)
         {
             var emission = particle.emission;
             emission.SetBursts(new ParticleSystem.Burst[] { new ParticleSystem.Burst(0.0f, burstNumber) });
@@ -61,6 +63,7 @@ public class Hitscan : MonoBehaviour
     public void Shoot()
     {
         if (timeSinceLastFire < firingTime) return;
+        if (health != null && health.IsDead) return;
         timeSinceLastFire = 0;
         if (gunObject != null) 
         { 
