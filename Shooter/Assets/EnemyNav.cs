@@ -97,7 +97,7 @@ public class EnemyNav : MonoBehaviour
             timeSinceLastAttack = 0;
         }
     }
-    private void OnDrawGizmos()
+    private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, sightRange);
