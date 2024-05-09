@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class Health : MonoBehaviour
 {
     public float maxHealth;
+    public UnityEvent onDeath;
     float health;
     bool isDead;
     TeamSetting Team { get { return GetComponent<TeamSetting>(); } }
@@ -61,6 +63,7 @@ public class Health : MonoBehaviour
         {
             score.OnKill();
         }
+        onDeath.Invoke();
     }
 
     void Resurrect()
