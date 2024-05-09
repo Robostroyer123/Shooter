@@ -27,6 +27,7 @@ public class EnemyNav : MonoBehaviour
     Health health;
     Transform Player { get { return GameObject.FindWithTag("Player").transform; } }
     Vector3 PlayerCentre { get { return Player.TryGetComponent(out Collider col) ? col.bounds.center : Player.position; } }
+    Vector3 VectorToPlayer { get { return Player.transform.position - transform.position; } }
     float DistanceToPlayer { get { return Vector3.Distance(transform.position, Player.transform.position); } }
     bool WithinRange(float range) { return DistanceToPlayer < range; }
     // Start is called before the first frame update
@@ -86,6 +87,9 @@ public class EnemyNav : MonoBehaviour
     }
     void Attack()
     {
+        transform.LookAt(Player);
+        transform.rotation = Quaternion.Euler(Vector3.up * transform.eulerAngles.y);
+        gunSet.transform.LookAt(PlayerCentre);
         if(timeSinceLastAttack > attackCooldown)
         {
             agent.SetDestination(transform.position);
