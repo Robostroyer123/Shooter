@@ -27,7 +27,9 @@ public class ScoreKeeper : MonoBehaviour
 
     float timeSinceLastKill;
     float killStreak;
+    float killNumber;
     float StreakTimer { get { return streakTimerCurve; } }
+    public float KillNumber { get { return killNumber; } }
     public float TimeSinceLastKill { get { return timeSinceLastKill; } }
     public bool StreakActive { get { return 1 - (timeSinceLastKill / StreakTimer) > 0; } }
     private void Start()
@@ -49,6 +51,7 @@ public class ScoreKeeper : MonoBehaviour
     public void OnKill()
     {
         killStreak++;
+        killNumber++;
         if (killResetsStreak)
         {
             timeSinceLastKill = 0;

@@ -16,9 +16,10 @@ public class EnemySpawner : MonoBehaviour
     public int initialSpawn = 1;
     public float spawnCooldown = 5;
     public int spawnCount = 1;
-    public float minDistance = 4f;
+    public float minDistanceToPlayer = 4f, minDistanceToEnemies = 2f;
     [Space]
     public int fixedEnemyCount = 1;
+    [Tooltip("How many enemies to kill before the number of enemies increase.")] public int enemyKillMilestone = 50;
     [Space]
     public bool setEnemyLookAhead;
     [Range(0, 100)] public int enemyLookAheadPercent = 50;
@@ -30,11 +31,27 @@ public class EnemySpawner : MonoBehaviour
     [Header("Spawner Area")]
     [SerializeField] Vector2 levelBounds = Vector2.one;
     Transform player;
+    ScoreKeeper scoreKeeper;
+    List<Transform> @objects = new();
     public int spawnedCount { get { return transform.childCount; } }
+    int enemyCount;
+    bool WithinEnemyRadius(float distance, Vector3 pos)
+    {
+        foreach (var obj in objects)
+        {
+            if (Vector3.Distance(pos, obj.position) < distance)
+            { 
+                return true; 
+            }
+        }
+        return false;
+    }
 
     IEnumerator Start()
     {
+        enemyCount = fixedEnemyCount;
         player = GameObject.FindWithTag("Player").transform;
+        scoreKeeper = FindFirstObjectByType<ScoreKeeper>();
         SpawnPrefabs(initialSpawn);
         while (true)
         {
@@ -45,9 +62,20 @@ public class EnemySpawner : MonoBehaviour
 
     void Update()
     {
-        if(spawnedCount < fixedEnemyCount)
+        if(scoreKeeper != null)
+        {
+            enemyCount = fixedEnemyCount + Mathf.FloorToInt(scoreKeeper.KillNumber / enemyKillMilestone);
+        }
+        if(spawnedCount < enemyCount)
         {
             SpawnPrefab();
+        }
+        foreach (var obj in @objects) 
+        { 
+            if(objects.Contains(obj) && obj == null)
+            {
+                objects.Remove(obj);
+            }
         }
     }
 
@@ -63,15 +91,17 @@ public class EnemySpawner : MonoBehaviour
     void SpawnPrefab()
     {
         Vector3 origin = new(Random.Range(-levelBounds.x, levelBounds.x), 0, Random.Range(-levelBounds.y, levelBounds.y));
-        if (RandomPoint(origin + transform.position, 10, out Vector3 point))
+        if (RandomPoint(origin + transform.position, 10, out Vector3 point) && Vector3.Distance(player.position, point) > minDistanceToPlayer && !WithinEnemyRadius(minDistanceToEnemies, point))
         {
             //float level = 1 + ((1 + ((Time.time / 60) * 0.046f)) - 1) / 0.33f;
             //level = Mathf.Min(level, 1);
 
             Spawn spawn = GetRandomSpawn();
-            if (spawn != null && Vector3.Distance(player.position, point) > minDistance)
+            
+            if (spawn != null)
             {
                 GameObject enemy = Instantiate(spawn.prefab, point, Quaternion.identity, transform);
+                @objects.Add(enemy.transform);
                 //Damageable damageable = enemy.TryGetComponent(out Damageable damageable1) ? damageable1 : enemy.GetComponentInChildren<Damageable>();
                 ////damageable.TrueMaxHitPoints() = Mathf.RoundToInt(level);
                 //BaseStats baseStats = enemy.TryGetComponent(out BaseStats baseStats1) ? baseStats1 : enemy.GetComponentInChildren<BaseStats>();
@@ -135,7 +165,7 @@ public class EnemySpawner : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(GameObject.FindWithTag("Player").transform.position, minDistance);
+        Gizmos.DrawWireSphere(GameObject.FindWithTag("Player").transform.position, minDistanceToPlayer);
 
     }
 }
