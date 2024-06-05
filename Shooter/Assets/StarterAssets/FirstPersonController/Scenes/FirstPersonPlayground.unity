@@ -4971,6 +4971,11 @@ PrefabInstance:
       objectReference: {fileID: 626333418}
     - target: {fileID: 7854078246227782986, guid: c5efc39a8aaf6e64ea40e9ad573e9b47,
         type: 3}
+      propertyPath: fixedBurstPattern
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7854078246227782986, guid: c5efc39a8aaf6e64ea40e9ad573e9b47,
+        type: 3}
       propertyPath: zoomAngleVariance
       value: 1
       objectReference: {fileID: 0}
