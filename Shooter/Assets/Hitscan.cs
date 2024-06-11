@@ -25,6 +25,8 @@ public class Hitscan : MonoBehaviour
     [Space]
     public bool distanceFalloff;
     public AnimationCurve damageDistanceFalloff = AnimationCurve.EaseInOut(0, 1.5f, 1, 0.5f);
+    [Space]
+    public float impulseForce = 1;
     float timeSinceLastFire = Mathf.Infinity;
 
     RaycastHit hit;
@@ -32,6 +34,8 @@ public class Hitscan : MonoBehaviour
     StarterAssetsInputs inputs;
     ZoomCamera zoomCamera;
     Health health;
+
+    Cinemachine.CinemachineImpulseSource impulseSource;
     public void SetTimeSinceLastFire(float time) {  timeSinceLastFire = time; }
 
     private void Start()
@@ -40,6 +44,7 @@ public class Hitscan : MonoBehaviour
         TryGetComponent(out inputs);
         TryGetComponent(out zoomCamera);
         TryGetComponent(out health);
+        TryGetComponent(out impulseSource);
 
         if (particle != null)
         {
@@ -91,6 +96,10 @@ public class Hitscan : MonoBehaviour
                 {
                     if (hitPrefab != null)
                     {
+                        if (impulseSource != null)
+                        {
+                            impulseSource.GenerateImpulse();
+                        }
                         float damageDistModifier = !distanceFalloff ? 1 : damageDistanceFalloff.Evaluate(hit.distance / distance);
                         Instantiate(hitPrefab, hit.point, Quaternion.Euler(hit.normal));
                         health.TakeDamage(Mathf.Max(damage, 1, damage) * damageDistModifier, transform);

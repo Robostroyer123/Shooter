@@ -72,7 +72,7 @@ public class ScoreKeeper : MonoBehaviour
         if (streakText != null)
         {
             streakText.SetText(killStreak.ToString());
-            streakText.rectTransform.DOPunchScale(Vector3.one * punchScale, punchDuration, 1);
+            //streakText.rectTransform.DOPunchScale(Vector3.one * punchScale, punchDuration, 1, 1);
         }
     }
 }

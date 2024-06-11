@@ -32,21 +32,8 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] Vector2 levelBounds = Vector2.one;
     Transform player;
     ScoreKeeper scoreKeeper;
-    List<Transform> @objects = new();
     public int spawnedCount { get { return transform.childCount; } }
     int enemyCount;
-    bool WithinEnemyRadius(float distance, Vector3 pos)
-    {
-        foreach (var obj in objects)
-        {
-            if (Vector3.Distance(pos, obj.position) < distance)
-            { 
-                return true; 
-            }
-        }
-        return false;
-    }
-
     IEnumerator Start()
     {
         enemyCount = fixedEnemyCount;
@@ -66,16 +53,9 @@ public class EnemySpawner : MonoBehaviour
         {
             enemyCount = fixedEnemyCount + Mathf.FloorToInt(scoreKeeper.KillNumber / enemyKillMilestone);
         }
-        if(spawnedCount < enemyCount)
+        if (spawnedCount < enemyCount)
         {
             SpawnPrefab();
-        }
-        foreach (var obj in @objects) 
-        { 
-            if(objects.Contains(obj) && obj == null)
-            {
-                objects.Remove(obj);
-            }
         }
     }
 
@@ -91,7 +71,7 @@ public class EnemySpawner : MonoBehaviour
     void SpawnPrefab()
     {
         Vector3 origin = new(Random.Range(-levelBounds.x, levelBounds.x), 0, Random.Range(-levelBounds.y, levelBounds.y));
-        if (RandomPoint(origin + transform.position, 10, out Vector3 point) && Vector3.Distance(player.position, point) > minDistanceToPlayer && !WithinEnemyRadius(minDistanceToEnemies, point))
+        if (RandomPoint(origin + transform.position, 10, out Vector3 point) && Vector3.Distance(player.position, point) > minDistanceToPlayer)
         {
             //float level = 1 + ((1 + ((Time.time / 60) * 0.046f)) - 1) / 0.33f;
             //level = Mathf.Min(level, 1);
@@ -101,7 +81,6 @@ public class EnemySpawner : MonoBehaviour
             if (spawn != null)
             {
                 GameObject enemy = Instantiate(spawn.prefab, point, Quaternion.identity, transform);
-                @objects.Add(enemy.transform);
                 //Damageable damageable = enemy.TryGetComponent(out Damageable damageable1) ? damageable1 : enemy.GetComponentInChildren<Damageable>();
                 ////damageable.TrueMaxHitPoints() = Mathf.RoundToInt(level);
                 //BaseStats baseStats = enemy.TryGetComponent(out BaseStats baseStats1) ? baseStats1 : enemy.GetComponentInChildren<BaseStats>();

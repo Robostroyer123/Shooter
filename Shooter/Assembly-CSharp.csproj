@@ -73,6 +73,7 @@
     <Compile Include="Assets\StarterAssets\Mobile\Scripts\VirtualInputs\UIVirtualJoystick.cs" />
     <Compile Include="Assets\PortalBrackeys.cs" />
     <Compile Include="Assets\HealthKit.cs" />
+    <Compile Include="Assets\Settings.cs" />
     <Compile Include="Assets\StarterAssets\FirstPersonController\Scripts\BasicRigidBodyPush.cs" />
     <Compile Include="Assets\TeamSetting.cs" />
     <Compile Include="Assets\UMotionExamples\Miscellaneous\Scripts\ResetPosition.cs" />
