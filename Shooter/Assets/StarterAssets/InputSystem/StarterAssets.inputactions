@@ -182,6 +182,17 @@
                 },
                 {
                     "name": "",
+                    "id": "d633b790-7204-40f9-b06b-c71c80168dd8",
+                    "path": "<Gamepad>/dpad",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "ed66cbff-2900-4a62-8896-696503cfcd31",
                     "path": "<Pointer>/delta",
                     "interactions": "",
