@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Animations.Rigging;
 
 public class EnemyNav : MonoBehaviour
 {
@@ -14,6 +15,10 @@ public class EnemyNav : MonoBehaviour
     [Space]
     public float attackCooldown = 1; 
     public float suspicionTime = 2;
+    [Space]
+    public Transform headAimFollow;
+    public Transform cameraRoot;
+    public Rig headAimRig;
 
     public Transform gunSet;
 
@@ -25,6 +30,7 @@ public class EnemyNav : MonoBehaviour
     Hitscan hitscan;
     NavMeshAgent agent;
     Health health;
+    Animator animator;
     Transform Player { get { return GameObject.FindWithTag("Player").transform; } }
     Vector3 PlayerCentre { get { return Player.TryGetComponent(out Collider col) ? col.bounds.center : Player.position; } }
     Vector3 VectorToPlayer { get { return Player.transform.position - transform.position; } }
@@ -40,6 +46,7 @@ public class EnemyNav : MonoBehaviour
         {
             hitscan.SetTimeSinceLastFire(0);
         }
+        animator = GetComponentInChildren<Animator>();
     }
 
     // Update is called once per frame
@@ -48,6 +55,7 @@ public class EnemyNav : MonoBehaviour
         if (Player == null || (health != null && health.IsDead)) return;
         timeSinceLastAttack += Time.deltaTime;
         timeSinceLastSeen += Time.deltaTime;
+        if(animator != null) { animator.SetFloat("Speed", agent.velocity.magnitude); }
         //if(gunSet != null)
         //{
         //    gunSet.LookAt(PlayerCentre);
@@ -84,6 +92,14 @@ public class EnemyNav : MonoBehaviour
     void Chase()
     {
         agent.SetDestination(Player.position);
+        if(headAimFollow != null && cameraRoot != null)
+        {
+            headAimFollow.position = cameraRoot.position;
+        }
+        if(headAimRig != null)
+        {
+            headAimRig.weight = 1;
+        }
     }
     void Attack()
     {
