@@ -277,9 +277,9 @@ namespace StarterAssets
 			{
 				//Don't multiply mouse input by Time.deltaTime
 				float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
-				
-				_cinemachineTargetPitch += _input.look.y * RotationSpeed * deltaTimeMultiplier * Time.timeScale * Settings.defaultSettings.sensitivity;
-				_rotationVelocity = _input.look.x * RotationSpeed * deltaTimeMultiplier * Time.timeScale * Settings.defaultSettings.sensitivity;
+				float sensitivity = Settings.defaultSettings != null ? Settings.defaultSettings.sensitivity : 1;
+				_cinemachineTargetPitch += _input.look.y * RotationSpeed * deltaTimeMultiplier * Time.timeScale * sensitivity;
+				_rotationVelocity = _input.look.x * RotationSpeed * deltaTimeMultiplier * Time.timeScale * sensitivity;
 
 				// clamp our pitch rotation
 				_cinemachineTargetPitch = ClampAngle(_cinemachineTargetPitch, BottomClamp, TopClamp);

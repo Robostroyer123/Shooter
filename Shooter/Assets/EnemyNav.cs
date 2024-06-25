@@ -17,8 +17,7 @@ public class EnemyNav : MonoBehaviour
     public float suspicionTime = 2;
     [Space]
     public Transform headAimFollow;
-    public Transform cameraRoot;
-    public Rig headAimRig;
+    public MultiAimConstraint headAimRig;
 
     public Transform gunSet;
 
@@ -31,6 +30,7 @@ public class EnemyNav : MonoBehaviour
     NavMeshAgent agent;
     Health health;
     Animator animator;
+    Transform CameraRoot { get { return GameObject.FindWithTag("CinemachineTarget").transform; } }
     Transform Player { get { return GameObject.FindWithTag("Player").transform; } }
     Vector3 PlayerCentre { get { return Player.TryGetComponent(out Collider col) ? col.bounds.center : Player.position; } }
     Vector3 VectorToPlayer { get { return Player.transform.position - transform.position; } }
@@ -70,8 +70,12 @@ public class EnemyNav : MonoBehaviour
     {
         if (!walkPointSet) { SearchWalkPoint(); }
         else { agent.SetDestination(walkPoint); }
-        
-        if(Vector3.Distance(transform.position, walkPoint) < walkPointStop)
+
+        if (headAimRig != null)
+        {
+            headAimRig.weight = 0;
+        }
+        if (Vector3.Distance(transform.position, walkPoint) < walkPointStop)
         {
             walkPointSet = false;
         }
@@ -92,9 +96,9 @@ public class EnemyNav : MonoBehaviour
     void Chase()
     {
         agent.SetDestination(Player.position);
-        if(headAimFollow != null && cameraRoot != null)
+        if(headAimFollow != null && CameraRoot != null)
         {
-            headAimFollow.position = cameraRoot.position;
+            headAimFollow.position = CameraRoot.position;
         }
         if(headAimRig != null)
         {

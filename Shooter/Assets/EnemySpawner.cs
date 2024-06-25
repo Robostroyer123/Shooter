@@ -21,9 +21,6 @@ public class EnemySpawner : MonoBehaviour
     public int fixedEnemyCount = 1;
     [Tooltip("How many enemies to kill before the number of enemies increase.")] public int enemyKillMilestone = 50;
     [Space]
-    public bool setEnemyLookAhead;
-    [Range(0, 100)] public int enemyLookAheadPercent = 50;
-    [Space]
     [Header("Objects to Spawn")]
     [NonReorderable]
     [SerializeField] Spawn[] spawns = default;
